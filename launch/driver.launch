@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="ip" default="" />
+  <arg name="ns" default="Sensor" />
+
+  <!-- driver -->
+  <group ns="$(arg ns)">
+    <node name="m8_driver_node" pkg="m8_driver" type="m8_driver_node" args="-ip $(arg ip)" required="true" output="screen"/>
+  </group>
+</launch>
