@@ -5,20 +5,20 @@
  **                                                            **
  ****************************************************************/
 
+#include <iostream>
 
-#include <ros/ros.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/console/parse.h>
-#include <iostream>
+
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/conversions.h>
 #include <pcl_conversions/pcl_conversions.h>
+
+#include <ros/ros.h>
+
 #include <sensor_msgs/PointCloud2.h>
-#include <logging_manager/logging_manager.h>
-#include <benchmark_utility/benchmark_utility.h>
-#include <settings_manager/settings_manager.h>
 
 #include <quanergy/common/pointcloud_types.h>
 
@@ -30,6 +30,8 @@
 #include <quanergy/modules/distance_filter.h>
 #include <quanergy/modules/ring_intensity_filter.h>
 
+// Simple application settings wrapper around boost property tree.
+#include "settings.h"
 
 struct M8SensorClient {
 
@@ -243,7 +245,7 @@ int main (int argc, char ** argv)
   std::string ip("10.0.0.3");
   std::string calibrationFile("");
   std::string ringFilterFile("");
-  std::string loggingPropsFile("");
+
   std::string format("");
   std::string topic("m8_points");
   std::string frame("m8");
@@ -260,7 +262,6 @@ int main (int argc, char ** argv)
   pcl::console::parse_argument (argc, argv, "-min", min);
   pcl::console::parse_argument (argc, argv, "-max", max);
   pcl::console::parse_argument (argc, argv, "-organize", organize);
-  pcl::console::parse_argument (argc, argv, "-logProps", loggingPropsFile);
   pcl::console::parse_argument (argc, argv, "-format", format);
   pcl::console::parse_argument (argc, argv, "-topic", topic);
   pcl::console::parse_argument (argc, argv, "-frame", frame);
@@ -268,35 +269,22 @@ int main (int argc, char ** argv)
 
   M8SensorClient::Ptr grabber = M8SensorClient::Ptr(new M8SensorClient(ip, port));
 
-#if 0
-  LoggingManager& logMgr = LoggingManager::getInstance();
-  if (!loggingPropsFile.empty())
-    logMgr.loadProperties(loggingPropsFile);
-  logMgr.setLogger(logMgr.getLogger("LoggingManager"));
-  grabber->setLogger(logMgr.getLogger("M8Grabber"));
-#endif
-
-  quanergy::BenchmarkUtility top_level("m8_driver_node");
-  top_level.enableHierarchy();
-  top_level.start();
-
   grabber->setMinimumDistanceThreshold(min);
   grabber->setMaximumDistanceThreshold(max);
 
   
   if (!ringFilterFile.empty())
   {
-    quanergy::SettingsManager settings;
+    quanergy::Settings settings;
+
     settings.loadXML(ringFilterFile);
 
     for (int i = 0; i < quanergy::client::M8_NUM_LASERS; i++)
     {
-      const std::string i_to_string = boost::lexical_cast<std::string>(i);
-      std::string config;
-      config = std::string ("Ring.Range") + i_to_string;
-      float ring_range = settings.get(config, 0.f);
-      config = std::string ("Ring.Intensity") + i_to_string;
-      std::uint8_t ring_intensity = settings.get(config, 0);
+      const std::string num = boost::lexical_cast<std::string>(i);
+
+      float ring_range = settings.get(std::string("Ring.Range").append(num), 0.0f);
+      std::uint8_t ring_intensity = settings.get(std::string("Ring.Intensity").append(num), 0);
 
       grabber->setRingFilterMinimumRangeThreshold(i, ring_range);
       grabber->setRingFilterMinimumIntensityThreshold(i, ring_intensity);
@@ -318,10 +306,6 @@ int main (int argc, char ** argv)
     std::cout << "Socket connection dropped; shutting down" << std::endl;
   }
 
-
-  top_level.stop();
-
-//  grabber->getLogger().getSubLogger("Benchmarks").debugStream() << top_level;
 
   return (0);
 }
