@@ -251,13 +251,13 @@ int main (int argc, char ** argv)
   std::string frame("m8");
 
   std::string port = "4141";
-  float min = 1.29, max = 200.0;
+  float min = 1.29;
+  float max = 200.0;
   bool organize = true;
   bool useRosTime = false;
 
   pcl::console::parse_argument (argc, argv, "-ip", ip);
   pcl::console::parse_argument (argc, argv, "-port", port);
-  pcl::console::parse_argument (argc, argv, "-calibrationFile", calibrationFile);
   pcl::console::parse_argument (argc, argv, "-ringFilterFile", ringFilterFile);
   pcl::console::parse_argument (argc, argv, "-min", min);
   pcl::console::parse_argument (argc, argv, "-max", max);
