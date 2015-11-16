@@ -9,6 +9,9 @@
 
 #include <iostream>
 
+// Simple application settings wrapper around boost property tree.
+#include "settings.h"
+
 M8ClientNode::M8ClientNode(int argc, char** argv)
   : settings_file("")
   , min(1.29)         // Distance filter

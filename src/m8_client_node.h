@@ -11,31 +11,6 @@
 #include <string>
 #include <cstdint>
 
-#include <pcl_ros/point_cloud.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/console/parse.h>
-
-#include <pcl/PCLPointCloud2.h>
-#include <pcl/conversions.h>
-#include <pcl_conversions/pcl_conversions.h>
-
-#include <ros/ros.h>
-
-#include <sensor_msgs/PointCloud2.h>
-
-#include <quanergy/common/pointcloud_types.h>
-
-#include <quanergy/parsers/failover_client.h>
-#include <quanergy/parsers/pointcloud_generator_01.h>
-#include <quanergy/parsers/pointcloud_generator_00.h>
-
-#include <quanergy/modules/polar_to_cart_converter.h>
-#include <quanergy/modules/distance_filter.h>
-#include <quanergy/modules/ring_intensity_filter.h>
-
-// Simple application settings wrapper around boost property tree.
-#include "settings.h"
 
 #include "simple_m8_publisher.h"
 
