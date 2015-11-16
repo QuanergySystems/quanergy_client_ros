@@ -118,7 +118,10 @@ add_definitions(${PCL_DEFINITIONS})
 # )
 
 ## Declare a cpp executable
-add_executable(m8_client_node src/m8_client_node.cpp)
+add_executable(m8_client_node 
+  src/m8_sensor_client.cpp
+  src/m8_client_node.cpp
+  src/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
