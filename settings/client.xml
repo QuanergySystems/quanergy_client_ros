@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Settings>
+
+  <DistanceFilter>
+    <min>0</min>
+    <max>200.0</max>
+  </DistanceFilter>
+
+  <RingFilter>
+    <Range0>0.0</Range0> <Intensity0>0</Intensity0>
+    <Range1>0.0</Range1> <Intensity1>0</Intensity1>
+    <Range2>0.0</Range2> <Intensity2>0</Intensity2>
+    <Range3>0.0</Range3> <Intensity3>0</Intensity3>
+
+    <Range4>0.0</Range4> <Intensity4>0</Intensity4>
+    <Range5>0.0</Range5> <Intensity5>0</Intensity5>
+    <Range6>0.0</Range6> <Intensity6>0</Intensity6>
+    <Range7>0.0</Range7> <Intensity7>0</Intensity7>
+  </RingFilter>
+
+
+  <M8ClientRos>
+    <ip>10.0.0.3</ip>
+    <port>4141</port>
+
+    <topic>m8_points</topic>
+    <frame>m8</frame>
+
+    <organize>false</organize>
+    <useRosTime>true</useRosTime>
+  </M8ClientRos>
+
+</Settings>

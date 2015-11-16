@@ -13,6 +13,9 @@
 #ifndef QUANERGY_CLIENT_ROS_SETTINGS_H
 #define QUANERGY_CLIENT_ROS_SETTINGS_H
 
+// for debugging
+#include <iostream>
+
 #include <string>
 
 #include <boost/property_tree/ptree.hpp>
