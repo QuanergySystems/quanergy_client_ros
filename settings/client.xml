@@ -26,7 +26,7 @@
     <topic>m8_points</topic>
     <frame>m8</frame>
 
-    <organize>false</organize>
+    <organize>true</organize>
     <useRosTime>true</useRosTime>
   </M8ClientRos>
 
