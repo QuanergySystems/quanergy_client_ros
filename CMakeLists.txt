@@ -27,7 +27,7 @@ catkin_package(
 ###########
 
 ## Specify additional locations of header files
-# include_directories(include)
+include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
