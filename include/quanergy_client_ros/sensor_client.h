@@ -5,8 +5,8 @@
  **                                                            **
  ****************************************************************/
 
-#ifndef QUANERGY_CLIENT_ROS_M8_SENSOR_CLIENT_H
-#define QUANERGY_CLIENT_ROS_M8_SENSOR_CLIENT_H
+#ifndef QUANERGY_CLIENT_ROS_SENSOR_CLIENT_H
+#define QUANERGY_CLIENT_ROS_SENSOR_CLIENT_H
 
 #include <quanergy/parsers/failover_client.h>
 #include <quanergy/parsers/pointcloud_generator_01.h>
@@ -17,9 +17,9 @@
 #include <quanergy/modules/ring_intensity_filter.h>
 
 
-struct M8SensorClient {
+struct SensorClient {
 
-  typedef std::shared_ptr<M8SensorClient> Ptr;
+  typedef std::shared_ptr<SensorClient> Ptr;
 
   /// FailoverClient adds a failover to old M8 data
   typedef quanergy::client::FailoverClient<quanergy::client::DataPacket01, quanergy::client::DataPacket00> ClientType;
@@ -30,11 +30,11 @@ struct M8SensorClient {
 
   typedef boost::signals2::signal<void (quanergy::PointCloudXYZIRPtr const &)> Signal;
 
-  M8SensorClient(std::string const & host, 
+  SensorClient(std::string const & host,
                  std::string const & port, 
                  std::string const & frame_id = std::string());
 
-  ~M8SensorClient();
+  ~SensorClient();
 
   boost::signals2::connection connect(const typename Signal::slot_type & subscriber);
 

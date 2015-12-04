@@ -5,8 +5,8 @@
  **                                                            **
  ****************************************************************/
 
-#ifndef QUANERGY_CLIENT_ROS_SIMPLE_M8_PUBLISHER_H
-#define QUANERGY_CLIENT_ROS_SIMPLE_M8_PUBLISHER_H
+#ifndef QUANERGY_CLIENT_ROS_SIMPLE_PUBLISHER_H
+#define QUANERGY_CLIENT_ROS_SIMPLE_PUBLISHER_H
 
 
 #include <pcl_ros/point_cloud.h>
@@ -25,18 +25,18 @@
 #include <quanergy/common/pointcloud_types.h>
 
 
-#include "m8_sensor_client.h"
+#include <quanergy_client_ros/sensor_client.h>
 
 
 template <typename PointT>
-class SimpleM8Publisher
+class SimplePublisher
 {
 public:
 
   typedef pcl::PointCloud<PointT> Cloud;
   typedef typename Cloud::ConstPtr CloudConstPtr;
 
-  SimpleM8Publisher(M8SensorClient::Ptr const & grabber,
+  SimplePublisher(SensorClient::Ptr const & grabber,
                     const std::string& topic,
                     const std::string& frame,
                     bool useRosTime)
@@ -79,7 +79,7 @@ public:
     // If you do, you'll create a memory leak, as these things are *huge*.
     publisher_ = n.advertise<pcl::PointCloud<PointT> >(topic, 10);
     boost::function<void (const CloudConstPtr&)> cloud_cb = boost::bind (
-      &SimpleM8Publisher::cloud_callback, this, _1);
+      &SimplePublisher::cloud_callback, this, _1);
     cloud_connection_ = grabber_->connect(cloud_cb);
 
     std::exception_ptr e_ptr;
@@ -116,7 +116,7 @@ public:
 
 private:
 
-  M8SensorClient::Ptr grabber_;
+  SensorClient::Ptr grabber_;
   boost::mutex cloud_publisher_mutex_;
   std::string topic_;
   CloudConstPtr cloud_;

@@ -5,10 +5,10 @@
  **                                                            **
  ****************************************************************/
 
-#include "m8_sensor_client.h"
+#include <quanergy_client_ros/sensor_client.h>
 
 
-M8SensorClient::M8SensorClient(std::string const & host, 
+SensorClient::SensorClient(std::string const & host,
                                std::string const & port, 
                                std::string const & frame_id)
   : client_(host, port, frame_id) 
@@ -24,7 +24,7 @@ M8SensorClient::M8SensorClient(std::string const & host,
 }
 
 
-M8SensorClient::~M8SensorClient()
+SensorClient::~SensorClient()
 {
   client_connection_.disconnect();
   distance_filter_connection_.disconnect();
@@ -32,67 +32,67 @@ M8SensorClient::~M8SensorClient()
 }
 
 
-boost::signals2::connection M8SensorClient::connect(const typename Signal::slot_type & subscriber) 
+boost::signals2::connection SensorClient::connect(const typename Signal::slot_type & subscriber)
 {
   return polar_to_cart_converter_.connect(subscriber);
 }
 
 
-void M8SensorClient::run() 
+void SensorClient::run()
 {
   client_.run();
 }
 
 
-void M8SensorClient::stop() 
+void SensorClient::stop()
 {
   client_.stop();
 }
 
 
-void M8SensorClient::setMaximumDistanceThreshold(float maxThreshold)
+void SensorClient::setMaximumDistanceThreshold(float maxThreshold)
 {
   distance_filter_.setMaximumDistanceThreshold(maxThreshold);
 }
 
 
-float M8SensorClient::getMaximumDistanceThreshold() const
+float SensorClient::getMaximumDistanceThreshold() const
 {
   return distance_filter_.getMaximumDistanceThreshold();
 }
 
 
-void M8SensorClient::setMinimumDistanceThreshold(float minThreshold)
+void SensorClient::setMinimumDistanceThreshold(float minThreshold)
 {
   distance_filter_.setMinimumDistanceThreshold(minThreshold);
 }
 
 
-float M8SensorClient::getMinimumDistanceThreshold() const
+float SensorClient::getMinimumDistanceThreshold() const
 {
   return distance_filter_.getMinimumDistanceThreshold();
 }
 
 
-void M8SensorClient::setRingFilterMinimumRangeThreshold(const std::uint16_t laser_beam, const float min_threshold)
+void SensorClient::setRingFilterMinimumRangeThreshold(const std::uint16_t laser_beam, const float min_threshold)
 {
   ring_intensity_filter_.setRingFilterMinimumRangeThreshold(laser_beam, min_threshold);
 }
 
   
-float M8SensorClient::getRingFilterMinimumRangeThreshold(const std::uint16_t laser_beam) const
+float SensorClient::getRingFilterMinimumRangeThreshold(const std::uint16_t laser_beam) const
 {
   return ring_intensity_filter_.getRingFilterMinimumRangeThreshold(laser_beam);
 }
 
 
-void M8SensorClient::setRingFilterMinimumIntensityThreshold(const uint16_t laser_beam, const uint8_t min_threshold)
+void SensorClient::setRingFilterMinimumIntensityThreshold(const uint16_t laser_beam, const uint8_t min_threshold)
 {
   ring_intensity_filter_.setRingFilterMinimumIntensityThreshold(laser_beam, min_threshold);
 }
 
 
-uint8_t M8SensorClient::getRingFilterMinimumIntensityThreshold(const std::uint16_t laser_beam) const
+uint8_t SensorClient::getRingFilterMinimumIntensityThreshold(const std::uint16_t laser_beam) const
 {
   return ring_intensity_filter_.getRingFilterMinimumIntensityThreshold(laser_beam);
 }

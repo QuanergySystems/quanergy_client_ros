@@ -5,14 +5,14 @@
  **                                                            **
  ****************************************************************/
 
-#include "m8_client_node.h"
+#include <quanergy_client_ros/client_node.h>
 
 #include <iostream>
 
 // Simple application settings wrapper around boost property tree.
-#include "settings.h"
+#include <quanergy_client_ros/settings.h>
 
-M8ClientNode::M8ClientNode(int argc, char** argv)
+ClientNode::ClientNode(int argc, char** argv)
   : settings_file("")
   , min(1.29)         // Distance filter
   , max(200.0)        // Distance filter
@@ -20,8 +20,8 @@ M8ClientNode::M8ClientNode(int argc, char** argv)
   , default_ring_intensity(0)
   , ip("10.0.0.3")
   , port("4141")
-  , topic("m8_points")
-  , frame("m8")
+  , topic("points")
+  , frame("sensor")
   , organize(true)
   , useRosTime(false)
 {
@@ -31,16 +31,16 @@ M8ClientNode::M8ClientNode(int argc, char** argv)
     ring_intensity[i] = default_ring_intensity;
   }
 
-  ros::init(argc, argv, "M8Client");
+  ros::init(argc, argv, "Client");
 
   loadSettings(argc, argv);
   parseArgs(argc, argv);
 }
 
 
-void M8ClientNode::publish()
+void ClientNode::publish()
 {
-  M8SensorClient::Ptr grabber = M8SensorClient::Ptr(new M8SensorClient(ip, port));
+  SensorClient::Ptr grabber = SensorClient::Ptr(new SensorClient(ip, port));
 
   grabber->setMinimumDistanceThreshold(min);
   grabber->setMaximumDistanceThreshold(max);
@@ -51,7 +51,7 @@ void M8ClientNode::publish()
     grabber->setRingFilterMinimumIntensityThreshold(i, ring_intensity[i]);
   }
   
-  SimpleM8Publisher<quanergy::PointXYZIR> p(grabber, topic, frame, useRosTime);
+  SimplePublisher<quanergy::PointXYZIR> p(grabber, topic, frame, useRosTime);
   try
   {
     p.run();
@@ -66,7 +66,7 @@ void M8ClientNode::publish()
   }
 }
 
-void M8ClientNode::loadSettings(int argc, char ** argv)
+void ClientNode::loadSettings(int argc, char ** argv)
 {
   // Is there a settings file specified?
 
@@ -92,19 +92,19 @@ void M8ClientNode::loadSettings(int argc, char ** argv)
       ring_intensity[i] = settings.get(intensity_param, ring_intensity[i]);
     }
 
-    ip = settings.get("M8ClientRos.ip", ip);
-    port = settings.get("M8ClientRos.port", port);
+    ip = settings.get("ClientRos.ip", ip);
+    port = settings.get("ClientRos.port", port);
 
-    topic = settings.get("M8ClientRos.topic", topic);
-    frame = settings.get("M8ClientRos.frame", frame);
+    topic = settings.get("ClientRos.topic", topic);
+    frame = settings.get("ClientRos.frame", frame);
 
-    organize = settings.get("M8ClientRos.organize", organize);
-    useRosTime = settings.get("M8ClientRos.useRosTime", useRosTime);
+    organize = settings.get("ClientRos.organize", organize);
+    useRosTime = settings.get("ClientRos.useRosTime", useRosTime);
   }
 }
 
 
-void M8ClientNode::parseArgs(int argc, char ** argv)
+void ClientNode::parseArgs(int argc, char ** argv)
 {
   pcl::console::parse_argument (argc, argv, "-min", min);
   pcl::console::parse_argument (argc, argv, "-max", max);

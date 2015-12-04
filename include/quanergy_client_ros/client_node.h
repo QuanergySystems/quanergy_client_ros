@@ -5,19 +5,19 @@
  **                                                            **
  ****************************************************************/
 
-#ifndef QUANERGY_CLIENT_M8_CLIENT_NODE_H
-#define QUANERGY_CLIENT_M8_CLIENT_NODE_H
+#ifndef QUANERGY_CLIENT_ROS_CLIENT_NODE_H
+#define QUANERGY_CLIENT_ROS_CLIENT_NODE_H
 
 #include <string>
 #include <cstdint>
 
 
-#include "simple_m8_publisher.h"
+#include <quanergy_client_ros/simple_publisher.h>
 
-struct M8ClientNode 
+struct ClientNode
 {
 
-  M8ClientNode(int argc, char** argv);
+  ClientNode(int argc, char** argv);
 
   void publish();
 
@@ -47,7 +47,7 @@ private:
   float ring_range[quanergy::client::M8_NUM_LASERS];
   std::uint16_t ring_intensity[quanergy::client::M8_NUM_LASERS];
   
-  // M8 Client
+  // Client
 
   std::string ip;
   std::string port;
