@@ -16,12 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 
 find_package(QuanergyClient REQUIRED)
-find_package(QuanergyCore REQUIRED)
-
-include("${QUANERGY_CORE_CMAKE_DIR}/QuanergyFlags.cmake")
-
-find_package(QuanergyUtils REQUIRED)
-
 
 find_package(PCL REQUIRED COMPONENTS common io)
 
@@ -94,7 +88,6 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES m8_driver
   CATKIN_DEPENDS roscpp sensor_msgs pcl_ros
-  DEPENDS benchmark_utility
 )
 
 ###########
@@ -131,8 +124,6 @@ add_executable(m8_client_node
  target_link_libraries(m8_client_node
    ${catkin_LIBRARIES}
    ${PCL_LIBRARIES}
-   benchmark_utility
-   logging_manager
    quanergy_client
  )
 
