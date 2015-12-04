@@ -19,15 +19,15 @@
   </RingFilter>
 
 
-  <M8ClientRos>
+  <ClientRos>
     <ip>10.0.0.3</ip>
     <port>4141</port>
 
-    <topic>m8_points</topic>
-    <frame>m8</frame>
+    <topic>points</topic>
+    <frame>sensor</frame>
 
     <organize>true</organize>
     <useRosTime>true</useRosTime>
-  </M8ClientRos>
+  </ClientRos>
 
 </Settings>

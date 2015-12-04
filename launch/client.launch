@@ -5,9 +5,9 @@
 
   <!-- driver -->
   <group ns="$(arg ns)">
-    <node name="m8_client_node" 
+    <node name="client_node" 
           pkg="quanergy_client_ros" 
-          type="m8_client_node" 
+          type="client_node" 
           args="-ip $(arg ip) -settings $(find quanergy_client_ros)/settings/client.xml"
           required="true" 
           output="screen"/>
