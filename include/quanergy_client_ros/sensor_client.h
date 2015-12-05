@@ -59,6 +59,7 @@ private:
 
   ClientType client_;
   DistanceFilter distance_filter_;
+  /// ring filter only relevant for M8
   RingIntensityFilter ring_intensity_filter_;
   PolarToCartConverter polar_to_cart_converter_;
 
