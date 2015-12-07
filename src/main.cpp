@@ -5,12 +5,12 @@
  **                                                            **
  ****************************************************************/
 
-#include "m8_client_node.h"
+#include <quanergy_client_ros/client_node.h>
 
 
 int main (int argc, char ** argv)
 {
-  M8ClientNode node (argc, argv);
+  ClientNode node (argc, argv);
 
   node.publish();
 

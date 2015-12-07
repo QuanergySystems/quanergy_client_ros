@@ -2,8 +2,8 @@
 <Settings>
 
   <DistanceFilter>
-    <min>0</min>
-    <max>200.0</max>
+    <min>0.5</min>
+    <max>500.0</max>
   </DistanceFilter>
 
   <RingFilter>
@@ -19,15 +19,15 @@
   </RingFilter>
 
 
-  <M8ClientRos>
-    <ip>10.0.0.3</ip>
+  <ClientRos>
+    <host>10.0.0.3</host>
     <port>4141</port>
 
-    <topic>m8_points</topic>
-    <frame>m8</frame>
+    <topic>points</topic>
+    <frame>sensor</frame>
 
     <organize>true</organize>
     <useRosTime>true</useRosTime>
-  </M8ClientRos>
+  </ClientRos>
 
 </Settings>

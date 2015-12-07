@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <package>
   <name>quanergy_client_ros</name>
-  <version>1.0.0</version>
-  <description>The quanergy_client_ros package</description>
-  <maintainer email="nizar.sallem@quanergy.com">Nizar Sallem</maintainer>
+  <version>1.1.0</version>
+  <description>The quanergy_client_ros package provides a ROS driver for Quanergy sensors</description>
+  <maintainer email="ross.taylor@quanergy.com">Ross Taylor</maintainer>
   <license>Copyright 2014- Quanergy Systems Inc.</license>
-  <author email="ryan.thompson@quanergy.com">Ryan Thompson</author>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
   <run_depend>roscpp</run_depend>
@@ -13,10 +12,4 @@
   <run_depend>sensor_msgs</run_depend>
   <build_depend>pcl_ros</build_depend>
   <run_depend>pcl_ros</run_depend>
-  <!-- <build_depend>quanergy_core-dev</build_depend> -->
-  <!-- <run_depend>quanergy_core-dev</run_depend> -->
-  <!-- <build_depend>quanergy_utils</build_depend> -->
-  <!-- <run_depend>quanergy_utils</run_depend> -->
-  <export>
-  </export>
 </package>

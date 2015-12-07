@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <arg name="ip" default="" />
+  <arg name="ip" default="host_not_given_to_launch" />
+  <arg name="host" default="$(arg ip)" />
   <arg name="ns" default="Sensor" />
 
   <!-- driver -->
   <group ns="$(arg ns)">
-    <node name="m8_client_node" 
+    <node name="client_node" 
           pkg="quanergy_client_ros" 
-          type="m8_client_node" 
-          args="-ip $(arg ip) -settings $(find quanergy_client_ros)/settings/client.xml"
+          type="client_node" 
+          args="-host $(arg host) -settings $(find quanergy_client_ros)/settings/client.xml -frame $(arg ns)"
           required="true" 
           output="screen"/>
   </group>
