@@ -42,6 +42,6 @@ roslaunch quanergy_client_ros client.launch host:=<hostname_or_ip>
 ```
 To add ROS environment configuration automatically to every future bash session
 ```
-source /opt/ros/indigo/setup.bash >> ~/.bashrc
-source ~/QuanergySystems/catkin_ws/devel/setup.bash >> ~/.bashrc
+echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
+echo "source ~/QuanergySystems/catkin_ws/devel/setup.bash" >> ~/.bashrc
 ```
