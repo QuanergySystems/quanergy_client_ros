@@ -64,3 +64,8 @@ install(TARGETS client_node
 install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
+
+install(DIRECTORY settings/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/settings
+  )
+
