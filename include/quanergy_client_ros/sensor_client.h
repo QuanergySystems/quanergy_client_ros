@@ -8,6 +8,12 @@
 #ifndef QUANERGY_CLIENT_ROS_SENSOR_CLIENT_H
 #define QUANERGY_CLIENT_ROS_SENSOR_CLIENT_H
 
+#include <quanergy/client/version.h>
+
+#if (QUANERGY_CLIENT_VERSION/100000 != 2)
+  #error Incompatible Quanergy Client Version; looking for v2.x.x
+#endif
+
 #include <quanergy/parsers/failover_client.h>
 #include <quanergy/parsers/pointcloud_generator_01.h>
 #include <quanergy/parsers/pointcloud_generator_00.h>
@@ -15,7 +21,6 @@
 #include <quanergy/modules/polar_to_cart_converter.h>
 #include <quanergy/modules/distance_filter.h>
 #include <quanergy/modules/ring_intensity_filter.h>
-
 
 struct SensorClient {
 
