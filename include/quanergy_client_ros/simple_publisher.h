@@ -49,7 +49,7 @@ public:
   }
 
   /** \brief run the application */
-  void run()
+  void run(double frequency = 50.)
   {
     ros::NodeHandle n;
     std::string topic = n.resolveName(topic_);
@@ -57,7 +57,12 @@ public:
     // If you do, you'll create a memory leak, as these things are *huge*.
     publisher_ = n.advertise<pcl::PointCloud<PointT> >(topic, 10);
 
-    ros::spin();
+    ros::Rate r(frequency);
+    while (ros::ok())
+    {
+      ros::spinOnce();
+      r.sleep();
+    }
   }
 
   void stop()
