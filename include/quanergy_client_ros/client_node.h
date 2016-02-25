@@ -13,6 +13,12 @@
 
 #include <quanergy_client_ros/simple_publisher.h>
 
+#include <quanergy/client/version.h>
+
+#if (QUANERGY_CLIENT_VERSION/100000 != 3)
+  #error Incompatible Quanergy Client Version; looking for v3.x.x
+#endif
+
 // client; failover adds support for old M8 data
 #include <quanergy/client/failover_client.h>
 
