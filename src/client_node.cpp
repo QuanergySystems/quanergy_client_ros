@@ -92,7 +92,7 @@ bool ClientNode::checkArgs(int argc, char** argv)
 void ClientNode::run()
 {
   // create modules
-  ClientType client(settings_.host, "4141", 100);
+  ClientType client(settings_.host, settings_.port, 100);
   ParserModuleType parser;
   DistanceFilter dFilter;
   RingIntensityFilter rFilter;

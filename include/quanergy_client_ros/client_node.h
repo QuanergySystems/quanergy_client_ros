@@ -71,8 +71,8 @@ private:
     // Ring filter
     // Only set by config file
     // only relevant for M8
-    float default_ring_range = 0.f;
-    std::uint16_t default_ring_intensity = 0;
+    const float default_ring_range = 0.f; // not exposed to user
+    const std::uint16_t default_ring_intensity = 0; // not exposed to user
 
     float ring_range[quanergy::client::M8_NUM_LASERS];
     std::uint16_t ring_intensity[quanergy::client::M8_NUM_LASERS];
@@ -84,6 +84,7 @@ private:
 
     // Client
     std::string host = "10.0.0.3";
+    const std::string port = "4141"; // not exposed to user
 
     std::string topic = "points";
     std::string frame = "sensor";
