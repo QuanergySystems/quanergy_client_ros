@@ -21,13 +21,13 @@
 
   <ClientRos>
     <host>10.0.0.3</host>
-    <port>4141</port>
 
     <topic>points</topic>
     <frame>sensor</frame>
 
-    <organize>true</organize>
     <useRosTime>true</useRosTime>
+
+    <return>max</return>
   </ClientRos>
 
 </Settings>

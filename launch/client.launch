@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  <arg name="ip" default="host_not_given_to_launch" />
-  <arg name="host" default="$(arg ip)" />
+  <arg name="host" />
   <arg name="ns" default="Sensor" />
+  <arg name="return" default="max" />
 
   <!-- driver -->
   <group ns="$(arg ns)">
     <node name="client_node" 
           pkg="quanergy_client_ros" 
           type="client_node" 
-          args="-host $(arg host) -settings $(find quanergy_client_ros)/settings/client.xml -frame $(arg ns)"
+          args="--host $(arg host) --settings $(find quanergy_client_ros)/settings/client.xml --frame $(arg ns) --return $(arg return)"
           required="true" 
           output="screen"/>
   </group>

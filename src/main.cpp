@@ -7,12 +7,14 @@
 
 #include <quanergy_client_ros/client_node.h>
 
-
-int main (int argc, char ** argv)
+int main(int argc, char** argv)
 {
-  ClientNode node (argc, argv);
+  if (ClientNode::checkArgs(argc, argv))
+  {
+    ClientNode node(argc, argv);
 
-  node.publish();
+    node.run();
+  }
 
-  return (0);
+  return 0;
 }

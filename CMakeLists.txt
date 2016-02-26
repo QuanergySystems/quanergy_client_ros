@@ -36,11 +36,16 @@ include_directories(
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
+file(GLOB_RECURSE project_HEADERS
+    "*.h"
+    "*.hpp"
+)
+
 ## Declare a cpp executable
 add_executable(client_node 
-  src/sensor_client.cpp
   src/client_node.cpp
-  src/main.cpp)
+  src/main.cpp
+  ${project_HEADERS})
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(client_node
