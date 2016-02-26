@@ -14,6 +14,42 @@
 
 #include <pcl/console/parse.h>
 
+quanergy::client::ReturnSelection returnFromString(const std::string& r)
+{
+  quanergy::client::ReturnSelection ret;
+
+  if (r == "max")
+    ret = quanergy::client::ReturnSelection::MAX;
+  else if (r == "first")
+    ret = quanergy::client::ReturnSelection::FIRST;
+  else if (r == "last")
+    ret = quanergy::client::ReturnSelection::LAST;
+  else if (r == "all")
+    ret = quanergy::client::ReturnSelection::ALL;
+  else
+    throw std::invalid_argument("Invalid return selection");
+
+  return ret;
+}
+
+std::string stringFromReturn(quanergy::client::ReturnSelection r)
+{
+  std::string ret;
+
+  if (r == quanergy::client::ReturnSelection::MAX)
+    ret = "max";
+  else if (r == quanergy::client::ReturnSelection::FIRST)
+    ret = "first";
+  else if (r == quanergy::client::ReturnSelection::LAST)
+    ret = "last";
+  else if (r == quanergy::client::ReturnSelection::ALL)
+    ret = "all";
+  else
+    throw std::invalid_argument("Invalid return selection");
+
+  return ret;
+}
+
 ClientNode::ClientNode(int argc, char** argv)
 {
   ros::init(argc, argv, "Client");
@@ -26,6 +62,31 @@ ClientNode::ClientNode(int argc, char** argv)
 
   loadSettings(argc, argv);
   parseArgs(argc, argv);
+}
+
+bool ClientNode::checkArgs(int argc, char** argv)
+{
+  if (pcl::console::find_switch(argc, argv, "-h") ||
+      pcl::console::find_switch(argc, argv, "--help") ||
+      (!pcl::console::find_switch(argc, argv, "--settings") &&
+       !pcl::console::find_switch(argc, argv, "--host")))
+  {
+    std::cout << "usage: " << argv[0]
+        << " [--settings <file>] [--host <host>] [--min <min>] [--max <max>] [--topic <topic>]"
+           " [--frame <frame>] [--useRosTime 0 | 1] [--return max | first | last | all] [-h | --help]" << std::endl
+        << std::endl
+        << "    --settings    settings file; these settings are overridden by commandline arguments" << std::endl
+        << "    --host        hostname or IP address of the sensor" << std::endl
+        << "    --min         minimum range for filtering" << std::endl
+        << "    --max         maximum range for filtering" << std::endl
+        << "    --topic       ROS topic for publishing the point cloud" << std::endl
+        << "    --frame       frame ID for the point cloud" << std::endl
+        << "    --useRosTime  boolean setting for point cloud time; uses sensor time if false" << std::endl
+        << "    --return      return selection for multiple return M8 sensors" << std::endl
+        << "-h, --help        show this help and exit" << std::endl;
+    return false;
+  }
+  return true;
 }
 
 void ClientNode::run()
@@ -41,6 +102,7 @@ void ClientNode::run()
   // setup modules
   parser.get<0>().setFrameId(settings_.frame);
   parser.get<1>().setFrameId(settings_.frame);
+  parser.get<1>().setReturnSelection(settings_.return_selection);
   parser.get<2>().setFrameId(settings_.frame);
   dFilter.setMaximumDistanceThreshold(settings_.max);
   dFilter.setMinimumDistanceThreshold(settings_.min);
@@ -86,7 +148,7 @@ void ClientNode::loadSettings(int argc, char ** argv)
 {
   // Is there a settings file specified?
   std::string settings_file;
-  pcl::console::parse_argument (argc, argv, "-settings", settings_file);
+  pcl::console::parse_argument (argc, argv, "--settings", settings_file);
 
   if (!settings_file.empty())
   {
@@ -109,28 +171,32 @@ void ClientNode::loadSettings(int argc, char ** argv)
       settings_.ring_intensity[i] = settings.get(intensity_param, settings_.ring_intensity[i]);
     }
 
-    // support ip or host with host given priority
-    settings_.host = settings.get("ClientRos.ip", settings_.host);
     settings_.host = settings.get("ClientRos.host", settings_.host);
 
     settings_.topic = settings.get("ClientRos.topic", settings_.topic);
     settings_.frame = settings.get("ClientRos.frame", settings_.frame);
 
     settings_.useRosTime = settings.get("ClientRos.useRosTime", settings_.useRosTime);
+
+    std::string r = stringFromReturn(settings_.return_selection);
+    r = settings.get("ClientRos.return", r);
+    settings_.return_selection = returnFromString(r);
   }
 }
 
 void ClientNode::parseArgs(int argc, char ** argv)
 {
-  pcl::console::parse_argument (argc, argv, "-min", settings_.min);
-  pcl::console::parse_argument (argc, argv, "-max", settings_.max);
+  pcl::console::parse_argument (argc, argv, "--min", settings_.min);
+  pcl::console::parse_argument (argc, argv, "--max", settings_.max);
 
-  // support ip or host with host given priority
-  pcl::console::parse_argument (argc, argv, "-ip", settings_.host);
-  pcl::console::parse_argument (argc, argv, "-host", settings_.host);
+  pcl::console::parse_argument (argc, argv, "--host", settings_.host);
 
-  pcl::console::parse_argument (argc, argv, "-topic", settings_.topic);
-  pcl::console::parse_argument (argc, argv, "-frame", settings_.frame);
+  pcl::console::parse_argument (argc, argv, "--topic", settings_.topic);
+  pcl::console::parse_argument (argc, argv, "--frame", settings_.frame);
 
-  pcl::console::parse_argument (argc, argv, "-useRosTime", settings_.useRosTime);
+  pcl::console::parse_argument (argc, argv, "--useRosTime", settings_.useRosTime);
+
+  std::string r = stringFromReturn(settings_.return_selection);
+  pcl::console::parse_argument (argc, argv, "--return", r);
+  settings_.return_selection = returnFromString(r);
 }

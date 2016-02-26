@@ -48,6 +48,9 @@ struct ClientNode
   typedef quanergy::client::PolarToCartConverter ConverterType;
 
   ClientNode(int argc, char** argv);
+  
+  /// check whether valid arguments are provided and print usage if not
+  static bool checkArgs(int argc, char** argv);
 
   void run();
 
@@ -73,6 +76,11 @@ private:
 
     float ring_range[quanergy::client::M8_NUM_LASERS];
     std::uint16_t ring_intensity[quanergy::client::M8_NUM_LASERS];
+    
+    // return selection
+    // only applies to DataPacket00 (newer M8 data)
+    // setting and argument both look for strings: max, first, last, all
+    quanergy::client::ReturnSelection return_selection = quanergy::client::ReturnSelection::MAX;
 
     // Client
     std::string host = "10.0.0.3";

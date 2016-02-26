@@ -9,9 +9,12 @@
 
 int main(int argc, char** argv)
 {
-  ClientNode node(argc, argv);
+  if (ClientNode::checkArgs(argc, argv))
+  {
+    ClientNode node(argc, argv);
 
-  node.run();
+    node.run();
+  }
 
   return 0;
 }
