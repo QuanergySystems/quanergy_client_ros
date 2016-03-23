@@ -171,6 +171,9 @@ void ClientNode::loadSettings(int argc, char ** argv)
       settings_.ring_intensity[i] = settings.get(intensity_param, settings_.ring_intensity[i]);
     }
 
+    settings_.amplitude = settings.get("EncoderCorrection.amplitude", settings_.amplitude);
+    settings_.phase = settings.get("EncoderCorrection.phase", settings_.phase);
+
     settings_.host = settings.get("ClientRos.host", settings_.host);
 
     settings_.topic = settings.get("ClientRos.topic", settings_.topic);

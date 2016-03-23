@@ -82,6 +82,10 @@ private:
     // setting and argument both look for strings: max, first, last, all
     quanergy::client::ReturnSelection return_selection = quanergy::client::ReturnSelection::MAX;
 
+    // Encoder correction terms:
+    float amplitude = 0.f;
+    float phase = 0.f; // in radians
+
     // Client
     std::string host = "10.0.0.3";
     const std::string port = "4141"; // not exposed to user
