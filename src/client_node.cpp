@@ -72,18 +72,20 @@ bool ClientNode::checkArgs(int argc, char** argv)
        !pcl::console::find_switch(argc, argv, "--host")))
   {
     std::cout << "usage: " << argv[0]
-        << " [--settings <file>] [--host <host>] [--min <min>] [--max <max>] [--topic <topic>]"
+        << " [--settings <file>] [--host <host>] [--encoder-amplitude-correction <amplitude>] [--encoder-phase-correction <phase>] [--min <min>] [--max <max>] [--topic <topic>]"
            " [--frame <frame>] [--useRosTime 0 | 1] [--return max | first | last | all] [-h | --help]" << std::endl
         << std::endl
-        << "    --settings    settings file; these settings are overridden by commandline arguments" << std::endl
-        << "    --host        hostname or IP address of the sensor" << std::endl
-        << "    --min         minimum range for filtering" << std::endl
-        << "    --max         maximum range for filtering" << std::endl
-        << "    --topic       ROS topic for publishing the point cloud" << std::endl
-        << "    --frame       frame ID for the point cloud" << std::endl
-        << "    --useRosTime  boolean setting for point cloud time; uses sensor time if false" << std::endl
-        << "    --return      return selection for multiple return M8 sensors" << std::endl
-        << "-h, --help        show this help and exit" << std::endl;
+        << "    --settings                      settings file; these settings are overridden by commandline arguments" << std::endl
+        << "    --host                          hostname or IP address of the sensor" << std::endl
+        << "    --encoder-amplitude-correction  amplitude when applying encoder correction" << std::endl
+        << "    --encoder-phase-correction      phase offset (in rad) when applying encoder correction" << std::endl
+        << "    --min                           minimum range for filtering" << std::endl
+        << "    --max                           maximum range for filtering" << std::endl
+        << "    --topic                         ROS topic for publishing the point cloud" << std::endl
+        << "    --frame                         frame ID for the point cloud" << std::endl
+        << "    --useRosTime                    boolean setting for point cloud time; uses sensor time if false" << std::endl
+        << "    --return                        return selection for multiple return M8 sensors" << std::endl
+        << "-h, --help                          show this help and exit" << std::endl;
     return false;
   }
   return true;
@@ -98,6 +100,7 @@ void ClientNode::run()
   RingIntensityFilter rFilter;
   ConverterType converter;
   SimplePublisher<quanergy::PointXYZIR> publisher(settings_.topic, settings_.useRosTime);
+  EncoderCorrectionType encoder_corrector(settings_.amplitude, settings_.phase);
 
   // setup modules
   parser.get<0>().setFrameId(settings_.frame);
@@ -115,7 +118,8 @@ void ClientNode::run()
   // connect modules
   std::vector<boost::signals2::connection> connections;
   connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
-  connections.push_back(parser.connect([&dFilter](const ParserModuleType::ResultType& pc){ dFilter.slot(pc); }));
+  connections.push_back(parser.connect([&encoder_corrector](const ParserModuleType::ResultType& pc){ encoder_corrector.slot(pc); }));
+  connections.push_back(encoder_corrector.connect([&dFilter](const EncoderCorrectionType::ResultType& pc){ dFilter.slot(pc); }));
   connections.push_back(dFilter.connect([&rFilter](const DistanceFilter::ResultType& pc){ rFilter.slot(pc); }));
   connections.push_back(rFilter.connect([&converter](const RingIntensityFilter::ResultType& pc){ converter.slot(pc); }));
   connections.push_back(converter.connect([&publisher](const ConverterType::ResultType& pc){ publisher.slot(pc); }));
@@ -193,6 +197,11 @@ void ClientNode::parseArgs(int argc, char ** argv)
   pcl::console::parse_argument (argc, argv, "--max", settings_.max);
 
   pcl::console::parse_argument (argc, argv, "--host", settings_.host);
+
+  pcl::console::parse_argument(argc, argv, "--encoder-amplitude-correction",
+                               settings_.amplitude);
+  pcl::console::parse_argument(argc, argv, "--encoder-phase-correction",
+                               settings_.phase);
 
   pcl::console::parse_argument (argc, argv, "--topic", settings_.topic);
   pcl::console::parse_argument (argc, argv, "--frame", settings_.frame);
