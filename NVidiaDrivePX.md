@@ -86,7 +86,7 @@ sudo make install
 ### Run quanergy_client_ros
 #### Source setup file
 ```
-source ~/quanergy_client_ros/build/catkin_ws/devel/setup.bash
+source ~/quanergy_client_ros/build/devel/setup.bash
 ```
 #### Set ROS_MASTER_URI and ROS_IP to IP address of Drive PX network interface
 ```
