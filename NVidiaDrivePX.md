@@ -1,5 +1,5 @@
 # Building quanergy_client_ros for Drive PX
-###
+
 #### Tested with Vibrante (Ubuntu 15.04 Vivid) on the Drive PX B00, and Ubuntu 14.04 Trusty Desktop
 
 ## Perform the following on the Drive PX
@@ -13,100 +13,100 @@ sudo apt-get install libconsole-bridge-dev libtinyxml-dev liblz4-dev libpoco-dev
 ```
 ### Build ROS from source (http://wiki.ros.org/indigo/Installation/Source)
 
-Build workspace
+#### Build workspace
 ```
 mkdir ~/ros_catkin_ws
 cd ~/ros_catkin_ws
 ```
-Install ROS-com
+#### Install ROS-com
 ```
 rosinstall_generator ros_comm --rosdistro indigo --deps --wet-only --tar > indigo-ros_comm-wet.rosinstall
 wstool init -j2 src indigo-ros_comm-wet.rosinstall
 ```
-Install Perception_PCL
+#### Install Perception_PCL
 ```
 rosinstall_generator perception_pcl --rosdistro indigo --deps --wet-only --tar > indigo-ros_pcl-wet.rosinstall
 wstool merge -t src indigo-desktop-full-wet.rosinstall
 wstool update -t src
 ```
-Resolve Dependencies
+#### Resolve Dependencies
 ```
 rosdep install --from-paths src --ignore-src --rosdistro indigo -y
 ```
-Build catkin workspace
+#### Build catkin workspace
 ```
 ./src/catkin/bin/catkin_make_isolated -j2 --install -DCMAKE_BUILD_TYPE=Release
 ```
-Set environment variables to use ROS packages
+#### Set environment variables to use ROS packages
 ```
 source ~/ros_catkin_ws/install_isolated/setup.bash
 ```
 ### Build quanergy_client
-Get code from Github
+#### Get code from Github
 ```
 cd ~
 git clone https://github.com/QuanergySystems/quanergy_client.git
 cd ~/quanergy_client
 ```
-Make build folder
+#### Make build folder
 ```
 mkdir build
 cd build
 ```
-Run cmake with option to not build visualizer
+#### Run cmake with option to not build visualizer
 ```
 cmake -DNoViz=ON ..
 ```
-Build and install
+#### Build and install
 ```
 make
 sudo make install
 ```
 ### Build quanergy_client_ros
-Get code from Github
+#### Get code from Github
 ```
 cd ~
 git clone https://github.com/QuanergySystems/quanergy_client_ros.git
 ```
-Make build folder
+#### Make build folder
 ```
 cd ~/quanergy_client_ros
 mkdir build
 cd build
 ```
-Run cmake
+#### Run cmake
 ```
 cmake ..
 ```
-Build and install
+#### Build and install
 ```
 make
 sudo make install
 ```
 ### Run quanergy_client_ros
-Source setup file
+#### Source setup file
 ```
 source ~/quanergy_client_ros/build/catkin_ws/devel/setup.bash
 ```
-Set ROS_MASTER_URI and ROS_IP to IP address of Drive PX network interface
+#### Set ROS_MASTER_URI and ROS_IP to IP address of Drive PX network interface
 ```
 export ROS_MASTER_URI=http://<Drive PX network IP>:11311
 export ROS_IP=<Drive PX network IP>
 ```
-Launch quanergy_client_ros with sensor IP address
+#### Launch quanergy_client_ros with sensor IP address
 ```
 roslaunch quanergy_client_ros client.launch host:=<Sensor IP>
 ```
 
 ## Perform the following on the Ubuntu Desktop
 ### Install ROS (http://wiki.ros.org/indigo/Installation/Ubuntu)
-Configure repositories
+#### Configure repositories
 ```
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 0xB01FA116
 sudo apt-get update
 ```
-Install packages
+#### Install packages
 ```
 apt-get install ros-indigo-ros-comm ros-indigo-diagnostics \
     ros-indigo-ros-base ros-indigo-nodelet ros-indigo-bfl ros-indigo-pcl-ros \
@@ -117,28 +117,27 @@ apt-get install ros-indigo-ros-comm ros-indigo-diagnostics \
     ros-indigo-urdf-parser-plugin ros-indigo-image-geometry ros-indigo-rviz \
     ros-indigo-rqt-plot ros-indigo-rqt-rviz ros-indigo-cv-bridge
 ```
-Initialize rosdep
+#### Initialize rosdep
 ```
 sudo rosdep init
 rosdep update
 ```
-Setup environment
+#### Setup environment
 ```
 echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 ### Run RViz
-Set ROS_MASTER_URI to IP address of Drive PX on the network
+#### Set ROS_MASTER_URI to IP address of Drive PX on the network
 ```
 export ROS_MASTER_URI=http://<Drive PX network IP>:11311
 ```
-Set ROS_IP to IP of the workstation on the network
+#### Set ROS_IP to IP of the workstation on the network
 ```
 export ROS_IP=<Drive PX network IP>
 ```
-Launch RViz
+#### Launch RViz
 ```
 rviz &
 ```
-In RViz, change Global Options → Fixed Frame to Sensor. Change PointCloud2 → Topic to
-/Sensor/points.
+#### In RViz, change Global Options → Fixed Frame to Sensor. Change PointCloud2 → Topic to /Sensor/points.
