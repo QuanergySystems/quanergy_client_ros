@@ -34,6 +34,9 @@
 // conversion module from polar to Cartesian
 #include <quanergy/modules/polar_to_cart_converter.h>
 
+// module to apply encoder correction
+#include <quanergy/modules/encoder_correction.h>
+
 struct ClientNode
 {
   /// FailoverClient allows packets to pass through that don't have a header (for old M8 data)
@@ -43,6 +46,7 @@ struct ClientNode
                                                  quanergy::client::DataPacketParser00,
                                                  quanergy::client::DataPacketParser01> ParserType;
   typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
+  typedef quanergy::client::EncoderCorrection EncoderCorrectionType;
   typedef quanergy::client::DistanceFilter DistanceFilter;
   typedef quanergy::client::RingIntensityFilter RingIntensityFilter;
   typedef quanergy::client::PolarToCartConverter ConverterType;
@@ -81,6 +85,10 @@ private:
     // only applies to DataPacket00 (newer M8 data)
     // setting and argument both look for strings: max, first, last, all
     quanergy::client::ReturnSelection return_selection = quanergy::client::ReturnSelection::MAX;
+
+    // Encoder correction terms:
+    float amplitude = 0.f;
+    float phase = 0.f; // in radians
 
     // Client
     std::string host = "10.0.0.3";

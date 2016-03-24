@@ -18,6 +18,10 @@
     <Range7>0.0</Range7> <Intensity7>0</Intensity7>
   </RingFilter>
 
+  <EncoderCorrection>
+    <amplitude>0.0</amplitude>
+    <phase>0.0</phase>
+  </EncoderCorrection>
 
   <ClientRos>
     <host>10.0.0.3</host>
