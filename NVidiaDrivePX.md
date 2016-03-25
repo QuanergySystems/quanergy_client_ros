@@ -134,7 +134,7 @@ export ROS_MASTER_URI=http://<Drive PX network IP>:11311
 ```
 #### Set ROS_IP to IP of the workstation on the network
 ```
-export ROS_IP=<Drive PX network IP>
+export ROS_IP=<Workstation network IP>
 ```
 #### Launch RViz
 ```
