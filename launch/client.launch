@@ -3,13 +3,14 @@
   <arg name="host" />
   <arg name="ns" default="Sensor" />
   <arg name="return" default="max" />
+  <arg name="maxCloudSize" default="-1" />
 
   <!-- driver -->
   <group ns="$(arg ns)">
     <node name="client_node" 
           pkg="quanergy_client_ros" 
           type="client_node" 
-          args="--host $(arg host) --settings $(find quanergy_client_ros)/settings/client.xml --frame $(arg ns) --return $(arg return)"
+          args="--host $(arg host) --settings $(find quanergy_client_ros)/settings/client.xml --frame $(arg ns) --return $(arg return) --max-cloud $(arg maxCloudSize)"
           required="true" 
           output="screen"/>
   </group>

@@ -98,6 +98,10 @@ private:
     std::string frame = "sensor";
 
     bool useRosTime = false;
+
+    std::int32_t minCloudSize = 1500*quanergy::client::M8_NUM_LASERS;
+    std::int32_t maxCloudSize = 11000*quanergy::client::M8_NUM_LASERS;
+
   } settings_;
 };
 

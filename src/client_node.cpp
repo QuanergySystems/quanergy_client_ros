@@ -73,7 +73,7 @@ bool ClientNode::checkArgs(int argc, char** argv)
   {
     std::cout << "usage: " << argv[0]
         << " [--settings <file>] [--host <host>] [--encoder-amplitude-correction <amplitude>] [--encoder-phase-correction <phase>] [--min <min>] [--max <max>] [--topic <topic>]"
-           " [--frame <frame>] [--useRosTime 0 | 1] [--return max | first | last | all] [-h | --help]" << std::endl
+           " [--frame <frame>] [--useRosTime 0 | 1] [--return max | first | last | all] [--min-cloud <min>] [--max-cloud <max>] [-h | --help]" << std::endl
         << std::endl
         << "    --settings                      settings file; these settings are overridden by commandline arguments" << std::endl
         << "    --host                          hostname or IP address of the sensor" << std::endl
@@ -85,6 +85,8 @@ bool ClientNode::checkArgs(int argc, char** argv)
         << "    --frame                         frame ID for the point cloud" << std::endl
         << "    --useRosTime                    boolean setting for point cloud time; uses sensor time if false" << std::endl
         << "    --return                        return selection for multiple return M8 sensors" << std::endl
+        << "    --min-cloud                     minimum number of points for a valid cloud" << std::endl
+        << "    --max-cloud                     maximum number of points allowed in a cloud" << std::endl
         << "-h, --help                          show this help and exit" << std::endl;
     return false;
   }
@@ -104,8 +106,10 @@ void ClientNode::run()
 
   // setup modules
   parser.get<0>().setFrameId(settings_.frame);
+  parser.get<0>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
   parser.get<1>().setFrameId(settings_.frame);
   parser.get<1>().setReturnSelection(settings_.return_selection);
+  parser.get<1>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
   parser.get<2>().setFrameId(settings_.frame);
   dFilter.setMaximumDistanceThreshold(settings_.max);
   dFilter.setMinimumDistanceThreshold(settings_.min);
@@ -188,6 +192,9 @@ void ClientNode::loadSettings(int argc, char ** argv)
     std::string r = stringFromReturn(settings_.return_selection);
     r = settings.get("ClientRos.return", r);
     settings_.return_selection = returnFromString(r);
+
+    settings_.minCloudSize = settings.get("ClientRos.minCloudSize", settings_.minCloudSize);
+    settings_.maxCloudSize = settings.get("ClientRos.maxCloudSize", settings_.maxCloudSize);
   }
 }
 
@@ -211,4 +218,7 @@ void ClientNode::parseArgs(int argc, char ** argv)
   std::string r = stringFromReturn(settings_.return_selection);
   pcl::console::parse_argument (argc, argv, "--return", r);
   settings_.return_selection = returnFromString(r);
+
+  pcl::console::parse_argument (argc, argv, "--min-cloud", settings_.minCloudSize);
+  pcl::console::parse_argument (argc, argv, "--max-cloud", settings_.maxCloudSize);
 }
