@@ -7,6 +7,10 @@
 ### Install Packages
 
 ```
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu vivid main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0xB01FA116
+sudo apt-get update
+
 sudo apt-get install libconsole-bridge-dev libtinyxml-dev liblz4-dev libpoco-dev sip-dev uuid-dev \
     python-rosdep python-rosinstall-generator python-wstool python-rosinstall build-essential git \
     libpcap-dev libboostall-dev libvtk5-dev libeigen3-dev libpcl-dev
@@ -26,12 +30,20 @@ wstool init -j2 src indigo-ros_comm-wet.rosinstall
 #### Install Perception_PCL
 ```
 rosinstall_generator perception_pcl --rosdistro indigo --deps --wet-only --tar > indigo-ros_pcl-wet.rosinstall
-wstool merge -t src indigo-desktop-full-wet.rosinstall
+wstool merge -t src indigo-ros_pcl-wet.rosinstall
 wstool update -t src
 ```
 #### Resolve Dependencies
 ```
+sudo rosdep init
+rosdep update
 rosdep install --from-paths src --ignore-src --rosdistro indigo -y
+```
+#### NOTE: Ignore the following error (the build in the next step still succeeds):
+```
+E: Package 'sbcl' has no installation candidate
+ERROR: the following rosdeps failed to install
+  apt: command [sudo -H apt-get install -y sbcl] failed
 ```
 #### Build catkin workspace
 ```
@@ -57,6 +69,14 @@ cd build
 ```
 cmake -DNoViz=ON ..
 ```
+#### NOTE: Ignore warnings
+```
+** WARNING ** io features related to openni will be disabled
+** WARNING ** io features related to openni2 will be disabled
+** WARNING ** io features related to pcap will be disabled
+** WARNING ** io features related to png will be disabled
+** WARNING ** io features related to libusb-1.0 will be disabled
+```
 #### Build and install
 ```
 make
@@ -77,6 +97,14 @@ cd build
 #### Run cmake
 ```
 cmake ..
+```
+#### NOTE: Ignore warnings 
+```
+** WARNING ** io features related to openni will be disabled
+** WARNING ** io features related to openni2 will be disabled
+** WARNING ** io features related to pcap will be disabled
+** WARNING ** io features related to png will be disabled
+** WARNING ** io features related to libusb-1.0 will be disabled
 ```
 #### Build and install
 ```
@@ -132,9 +160,9 @@ source ~/.bashrc
 ```
 export ROS_MASTER_URI=http://<Drive PX network IP>:11311
 ```
-#### Set ROS_IP to IP of the workstation on the network
+#### Set ROS_IP to IP of the Drive PX on the network
 ```
-export ROS_IP=<Workstation network IP>
+export ROS_IP=<Drive PX network IP>
 ```
 #### Launch RViz
 ```
