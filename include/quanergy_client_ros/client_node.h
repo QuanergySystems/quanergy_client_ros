@@ -35,7 +35,7 @@
 #include <quanergy/modules/polar_to_cart_converter.h>
 
 // module to apply encoder correction
-#include <quanergy/modules/encoder_correction.h>
+#include <quanergy/modules/encoder_angle_calibration.h>
 
 struct ClientNode
 {
@@ -46,7 +46,7 @@ struct ClientNode
                                                  quanergy::client::DataPacketParser00,
                                                  quanergy::client::DataPacketParser01> ParserType;
   typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
-  typedef quanergy::client::EncoderCorrection EncoderCorrectionType;
+  typedef quanergy::calibration::EncoderAngleCalibration EncoderAngleCalibrationType;
   typedef quanergy::client::DistanceFilter DistanceFilter;
   typedef quanergy::client::RingIntensityFilter RingIntensityFilter;
   typedef quanergy::client::PolarToCartConverter ConverterType;
