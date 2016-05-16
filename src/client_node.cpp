@@ -102,7 +102,8 @@ void ClientNode::run()
   RingIntensityFilter rFilter;
   ConverterType converter;
   SimplePublisher<quanergy::PointXYZIR> publisher(settings_.topic, settings_.useRosTime);
-  EncoderCorrectionType encoder_corrector(settings_.amplitude, settings_.phase);
+  EncoderAngleCalibrationType encoder_corrector;
+  encoder_corrector.setParams(settings_.amplitude, settings_.phase);
 
   // setup modules
   parser.get<0>().setFrameId(settings_.frame);
@@ -123,7 +124,7 @@ void ClientNode::run()
   std::vector<boost::signals2::connection> connections;
   connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
   connections.push_back(parser.connect([&encoder_corrector](const ParserModuleType::ResultType& pc){ encoder_corrector.slot(pc); }));
-  connections.push_back(encoder_corrector.connect([&dFilter](const EncoderCorrectionType::ResultType& pc){ dFilter.slot(pc); }));
+  connections.push_back(encoder_corrector.connect([&dFilter](const EncoderAngleCalibrationType::ResultType& pc){ dFilter.slot(pc); }));
   connections.push_back(dFilter.connect([&rFilter](const DistanceFilter::ResultType& pc){ rFilter.slot(pc); }));
   connections.push_back(rFilter.connect([&converter](const RingIntensityFilter::ResultType& pc){ converter.slot(pc); }));
   connections.push_back(converter.connect([&publisher](const ConverterType::ResultType& pc){ publisher.slot(pc); }));
