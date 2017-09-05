@@ -59,8 +59,8 @@ public:
       ros_cloud.header.stamp = ros::Time::now();
     else
     {
-      ros_cloud.header.stamp.sec = (cloud->header.stamp / 1000000000);
-      ros_cloud.header.stamp.nsec = (cloud->header.stamp % 1000000000);
+      ros_cloud.header.stamp.sec = (cloud->header.stamp / 1000000);
+      ros_cloud.header.stamp.nsec = (cloud->header.stamp % 1000000) * 1000;
     }
 
     if (cloud_publisher_mutex_.try_lock ())
