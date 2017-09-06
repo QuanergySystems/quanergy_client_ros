@@ -16,7 +16,7 @@
 
 int returnFromString(const std::string& r)
 {
-  quanergy::client::ReturnSelection ret;
+  int ret;
 
   if (r == "all")
   {
