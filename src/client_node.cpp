@@ -24,8 +24,16 @@ int returnFromString(const std::string& r)
     return ret;
   }
 
-  ret = std::atoi(r.c_str());
-  if (ret < 0 || ret >= quanergy::client::M8_NUM_RETURNS)
+  // Verify argument contains only digits
+  if (!r.empty() && std::all_of(r.begin(), r.end(), ::isdigit))
+  {
+    ret = std::atoi(r.c_str());
+    if (ret < 0 || ret >= quanergy::client::M8_NUM_RETURNS)
+    {
+      throw std::invalid_argument("Invalid return selection");
+    }
+  }
+  else
   {
     throw std::invalid_argument("Invalid return selection");
   }
