@@ -31,7 +31,7 @@
 
     <useRosTime>true</useRosTime>
 
-    <return>max</return>
+    <return>0</return>
   </ClientRos>
 
 </Settings>
