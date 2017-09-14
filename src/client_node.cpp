@@ -117,12 +117,10 @@ void ClientNode::run()
   encoder_corrector.setParams(settings_.amplitude, settings_.phase);
 
   // setup modules
-  parser.get<0>().setFrameId(settings_.frame);
-  parser.get<0>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
-  parser.get<1>().setFrameId(settings_.frame);
-  parser.get<1>().setReturnSelection(settings_.return_selection);
-  parser.get<1>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
-  parser.get<2>().setFrameId(settings_.frame);
+  parser.get<PARSER_00_INDEX>().setFrameId(settings_.frame);
+  parser.get<PARSER_00_INDEX>().setReturnSelection(settings_.return_selection);
+  parser.get<PARSER_00_INDEX>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
+  parser.get<PARSER_01_INDEX>().setFrameId(settings_.frame);
   dFilter.setMaximumDistanceThreshold(settings_.max);
   dFilter.setMinimumDistanceThreshold(settings_.min);
   for (int i = 0; i < quanergy::client::M8_NUM_LASERS; i++)

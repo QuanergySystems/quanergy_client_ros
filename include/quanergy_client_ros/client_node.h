@@ -19,13 +19,11 @@
   #error Incompatible Quanergy Client Version; looking for v3.x.x
 #endif
 
-// client; failover adds support for old M8 data
-#include <quanergy/client/failover_client.h>
+#include <quanergy/client/sensor_client.h>
 
 // parsers for the data packets we want to support
 #include <quanergy/parsers/data_packet_parser_00.h>
 #include <quanergy/parsers/data_packet_parser_01.h>
-#include <quanergy/parsers/data_packet_parser_failover.h>
 
 // filters
 #include <quanergy/modules/distance_filter.h>
@@ -39,12 +37,16 @@
 
 struct ClientNode
 {
-  /// FailoverClient allows packets to pass through that don't have a header (for old M8 data)
-  typedef quanergy::client::FailoverClient ClientType;
-  typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,   // return type
-                                                 quanergy::client::DataPacketParserFailover, // following are data packet types
-                                                 quanergy::client::DataPacketParser00,
-                                                 quanergy::client::DataPacketParser01> ParserType;
+  typedef quanergy::client::SensorClient ClientType;
+  typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,                      // return type
+                                                 quanergy::client::DataPacketParser00,              // PARSER_00_INDEX
+                                                 quanergy::client::DataPacketParser01> ParserType;  // PARSER_01_INDEX
+  enum
+  {
+    PARSER_00_INDEX = 0,
+    PARSER_01_INDEX = 1
+  };
+
   typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
   typedef quanergy::calibration::EncoderAngleCalibration EncoderAngleCalibrationType;
   typedef quanergy::client::DistanceFilter DistanceFilter;
