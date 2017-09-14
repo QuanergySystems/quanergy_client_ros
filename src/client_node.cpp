@@ -16,7 +16,6 @@
 
 int returnFromString(const std::string& r)
 {
-  std::cout << "RETURN SELECTION is " << r << std::endl;
   int ret;
 
   if (r == "all")
