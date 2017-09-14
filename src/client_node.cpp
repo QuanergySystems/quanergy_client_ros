@@ -14,38 +14,49 @@
 
 #include <pcl/console/parse.h>
 
-quanergy::client::ReturnSelection returnFromString(const std::string& r)
+int returnFromString(const std::string& r)
 {
-  quanergy::client::ReturnSelection ret;
+  int ret;
 
-  if (r == "max")
-    ret = quanergy::client::ReturnSelection::MAX;
-  else if (r == "first")
-    ret = quanergy::client::ReturnSelection::FIRST;
-  else if (r == "last")
-    ret = quanergy::client::ReturnSelection::LAST;
-  else if (r == "all")
-    ret = quanergy::client::ReturnSelection::ALL;
+  if (r == "all")
+  {
+    ret = quanergy::client::ALL_RETURNS;
+    return ret;
+  }
+
+  // Verify argument contains only digits
+  if (!r.empty() && std::all_of(r.begin(), r.end(), ::isdigit))
+  {
+    ret = std::atoi(r.c_str());
+    if (ret < 0 || ret >= quanergy::client::M8_NUM_RETURNS)
+    {
+      throw std::invalid_argument("Invalid return selection");
+    }
+  }
   else
+  {
     throw std::invalid_argument("Invalid return selection");
+  }
 
   return ret;
 }
 
-std::string stringFromReturn(quanergy::client::ReturnSelection r)
+std::string stringFromReturn(int r)
 {
   std::string ret;
 
-  if (r == quanergy::client::ReturnSelection::MAX)
-    ret = "max";
-  else if (r == quanergy::client::ReturnSelection::FIRST)
-    ret = "first";
-  else if (r == quanergy::client::ReturnSelection::LAST)
-    ret = "last";
-  else if (r == quanergy::client::ReturnSelection::ALL)
+  if (r == quanergy::client::ALL_RETURNS)
+  {
     ret = "all";
+  }
+  else if (r >= 0 && r < quanergy::client::M8_NUM_RETURNS)
+  {
+    ret = std::to_string(r);
+  }
   else
+  {
     throw std::invalid_argument("Invalid return selection");
+  }
 
   return ret;
 }
@@ -73,7 +84,7 @@ bool ClientNode::checkArgs(int argc, char** argv)
   {
     std::cout << "usage: " << argv[0]
         << " [--settings <file>] [--host <host>] [--encoder-amplitude-correction <amplitude>] [--encoder-phase-correction <phase>] [--min <min>] [--max <max>] [--topic <topic>]"
-           " [--frame <frame>] [--useRosTime 0 | 1] [--return max | first | last | all] [--min-cloud <min>] [--max-cloud <max>] [-h | --help]" << std::endl
+           " [--frame <frame>] [--useRosTime 0 | 1] [--return <number> | all] [--min-cloud <min>] [--max-cloud <max>] [-h | --help]" << std::endl
         << std::endl
         << "    --settings                      settings file; these settings are overridden by commandline arguments" << std::endl
         << "    --host                          hostname or IP address of the sensor" << std::endl

@@ -2,7 +2,7 @@
 <launch>
   <arg name="host" />
   <arg name="ns" default="Sensor" />
-  <arg name="return" default="max" />
+  <arg name="return" default="0" />
   <arg name="maxCloudSize" default="-1" />
 
   <!-- driver -->

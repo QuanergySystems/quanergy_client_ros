@@ -83,8 +83,8 @@ private:
     
     // return selection
     // only applies to DataPacket00 (newer M8 data)
-    // setting and argument both look for strings: max, first, last, all
-    quanergy::client::ReturnSelection return_selection = quanergy::client::ReturnSelection::MAX;
+    // setting and argument both look for strings: all or an integer between 0 and quanergy::client::M8_NUM_RETURNS-1
+    int return_selection = quanergy::client::ALL_RETURNS;
 
     // Encoder correction terms:
     float amplitude = 0.f;
