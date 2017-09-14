@@ -37,7 +37,6 @@
 
 struct ClientNode
 {
-  /// FailoverClient allows packets to pass through that don't have a header (for old M8 data)
   typedef quanergy::client::SensorClient ClientType;
   typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,                      // return type
                                                  quanergy::client::DataPacketParser00,              // PARSER_00_INDEX
