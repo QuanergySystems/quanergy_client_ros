@@ -40,6 +40,7 @@ rosdep update
 rosdep install --from-paths src --ignore-src --rosdistro indigo -y
 ```
 *NOTE: Ignore the following error (the build in the next step still succeeds):*
+
 ```
 E: Package 'sbcl' has no installation candidate
 ERROR: the following rosdeps failed to install
@@ -70,6 +71,7 @@ cd build
 cmake -DNoViz=ON ..
 ```
 *NOTE: Ignore warnings*
+
 ```
 ** WARNING ** io features related to openni will be disabled
 ** WARNING ** io features related to openni2 will be disabled
@@ -99,6 +101,7 @@ cd build
 cmake ..
 ```
 *NOTE: Ignore warnings* 
+
 ```
 ** WARNING ** io features related to openni will be disabled
 ** WARNING ** io features related to openni2 will be disabled
