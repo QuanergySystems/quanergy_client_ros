@@ -3,7 +3,7 @@ ROS driver using quanergy_client to produce ROS point cloud messages from Quaner
 
 # Linux Build Instructions (tested on Ubuntu 14.04 LTS)
 
-Build quanergy_client (SDK) per README
+Build quanergy_client (SDK) per readme/ubuntu1404.md
 Install quanergy_client (SDK)
 
 ```
