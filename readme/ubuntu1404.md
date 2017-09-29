@@ -1,7 +1,6 @@
-# quanergy_client_ros Build Procedure
-ROS driver using quanergy_client to produce ROS point cloud messages from Quanergy sensors
+# Ubuntu 14.04 Build of QuanergyClientRos
 
-# Linux Build Instructions (tested on Ubuntu 14.04 LTS)
+## Install QuanergyClient (SDK)
 
 Build quanergy_client (SDK) per readme/ubuntu1404.md
 Install quanergy_client (SDK)
@@ -10,7 +9,7 @@ Install quanergy_client (SDK)
 cd ~/QuanergySystems/quanergy_client/build
 sudo make install
 ```
-Install ROS Indigo RVIZ and configure environment
+## Install ROS Indigo RVIZ and configure environment
 
 ```
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
