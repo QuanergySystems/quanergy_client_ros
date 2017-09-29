@@ -19,6 +19,7 @@ sudo apt-get update
 sudo apt-get install ros-indigo-rviz ros-indigo-pcl-ros
 source /opt/ros/indigo/setup.bash
 ```
+## Build Instructions
 Clone the ROS SDK repository
 
 ```
@@ -33,6 +34,7 @@ Build quanergy_client_ros code
 cd ~/QuanergySystems/catkin_ws
 catkin_make
 ```
+## Testing Build
 To test, configure environment and launch node
 
 ```
@@ -40,7 +42,9 @@ source /opt/ros/indigo/setup.bash
 source ~/QuanergySystems/catkin_ws/devel/setup.bash
 roslaunch quanergy_client_ros client.launch host:=<hostname_or_ip>
 ```
+## Optional Configuration
 To add ROS environment configuration automatically to every future bash session
+
 ```
 echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
 echo "source ~/QuanergySystems/catkin_ws/devel/setup.bash" >> ~/.bashrc
