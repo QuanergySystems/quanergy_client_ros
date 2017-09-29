@@ -9,7 +9,7 @@ Install quanergy_client (SDK)
 cd ~/QuanergySystems/quanergy_client/build
 sudo make install
 ```
-## Install ROS  RVIZ and configure environment
+## Install ROS Kinetic  RVIZ and configure environment
 
 ```
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -34,7 +34,7 @@ Build quanergy_client_ros code
 cd ~/QuanergySystems/catkin_ws
 catkin_make
 ```
-## Test Building
+## Testing Build
 To test, configure environment and launch node
 
 ```
