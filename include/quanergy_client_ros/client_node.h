@@ -22,6 +22,7 @@
 #include <quanergy/client/sensor_client.h>
 
 // parsers for the data packets we want to support
+#include <quanergy/parsers/variadic_packet_parser.h>
 #include <quanergy/parsers/data_packet_parser_00.h>
 #include <quanergy/parsers/data_packet_parser_01.h>
 
