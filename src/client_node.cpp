@@ -121,6 +121,8 @@ void ClientNode::run()
   parser.get<PARSER_00_INDEX>().setReturnSelection(settings_.return_selection);
   parser.get<PARSER_00_INDEX>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
   parser.get<PARSER_01_INDEX>().setFrameId(settings_.frame);
+  parser.get<PARSER_04_INDEX>().setFrameId(settings_.frame);
+  parser.get<PARSER_04_INDEX>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
   dFilter.setMaximumDistanceThreshold(settings_.max);
   dFilter.setMinimumDistanceThreshold(settings_.min);
   for (int i = 0; i < quanergy::client::M8_NUM_LASERS; i++)

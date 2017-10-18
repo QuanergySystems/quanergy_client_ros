@@ -25,6 +25,7 @@
 #include <quanergy/parsers/variadic_packet_parser.h>
 #include <quanergy/parsers/data_packet_parser_00.h>
 #include <quanergy/parsers/data_packet_parser_01.h>
+#include <quanergy/parsers/data_packet_parser_04.h>
 
 // filters
 #include <quanergy/modules/distance_filter.h>
@@ -41,11 +42,13 @@ struct ClientNode
   typedef quanergy::client::SensorClient ClientType;
   typedef quanergy::client::VariadicPacketParser<quanergy::PointCloudHVDIRPtr,                      // return type
                                                  quanergy::client::DataPacketParser00,              // PARSER_00_INDEX
-                                                 quanergy::client::DataPacketParser01> ParserType;  // PARSER_01_INDEX
+                                                 quanergy::client::DataPacketParser01,              // PARSER_01_INDEX
+                                                 quanergy::client::DataPacketParser04> ParserType;  // PARSER_04_INDEX
   enum
   {
     PARSER_00_INDEX = 0,
     PARSER_01_INDEX = 1
+    PARSER_04_INDEX = 2
   };
 
   typedef quanergy::client::PacketParserModule<ParserType> ParserModuleType;
