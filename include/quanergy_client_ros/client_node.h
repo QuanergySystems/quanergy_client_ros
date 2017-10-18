@@ -47,7 +47,7 @@ struct ClientNode
   enum
   {
     PARSER_00_INDEX = 0,
-    PARSER_01_INDEX = 1
+    PARSER_01_INDEX = 1,
     PARSER_04_INDEX = 2
   };
 
