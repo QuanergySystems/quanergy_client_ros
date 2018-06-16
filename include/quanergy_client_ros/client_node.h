@@ -128,9 +128,10 @@ private:
 
     SensorPipelineModules(
       const Settings &settings,
-      ClientType &client,
-      int return_selection = -3 // USE_SETTINGS_RETURN_SELECTION
+      int return_selection,
+      ClientType &client
     );
+
     void run();
   };
 };

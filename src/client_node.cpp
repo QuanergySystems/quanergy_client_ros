@@ -121,7 +121,9 @@ void ClientNode::run()
   {
     sensor_pipelines.reserve(1);
     sensor_pipelines.emplace_back(
-      new SensorPipelineModules(settings_, client)
+      new SensorPipelineModules(
+        settings_, settings_.return_selection, client
+      )
     );
     pipeline_threads.emplace_back(
       [&sensor_pipelines, &client]
@@ -138,10 +140,10 @@ void ClientNode::run()
     for (int i=0; i<pipeline_count; ++i)
     {
       sensor_pipelines.emplace_back(
-        new SensorPipelineModules(settings_, client)
+        new SensorPipelineModules(settings_, i, client)
       );
       pipeline_threads.emplace_back(
-        [&sensor_pipelines, &client, i]
+        [&sensor_pipelines, i, &client]
         {
           sensor_pipelines[i]->run();
           client.stop();
@@ -247,15 +249,13 @@ void ClientNode::parseArgs(int argc, char ** argv)
 
 ClientNode::SensorPipelineModules::SensorPipelineModules(
   const ClientNode::Settings &settings,
-  ClientNode::ClientType &client,
-  int return_selection /* = USE_SETTINGS_RETURN_SELECTION */)
-  : publisher(settings.topic, settings.useRosTime)
+  int return_selection,
+  ClientNode::ClientType &client)
+  : publisher(
+      settings.topic + std::to_string(return_selection), 
+      settings.useRosTime
+    )
 {
-  if (return_selection == USE_SETTINGS_RETURN_SELECTION)
-  {
-    return_selection = settings.return_selection;
-  }
-
   encoder_corrector.setParams(settings.amplitude, settings.phase);
 
   // Setup modules
