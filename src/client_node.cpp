@@ -113,18 +113,20 @@ void ClientNode::run()
 {
   // create modules
   ClientType client(settings_.host, settings_.port, 100);
-  std::vector<SensorPipelineModules> sensor_pipelines;
+  std::vector<SensorPipelineModules::Ptr> sensor_pipelines;
   std::vector<std::thread> pipeline_threads;
 
   // Run pipeline(s) in their own thread(s)
   if (settings_.return_selection != ALL_SEPARATE_RETURNS)
   {
     sensor_pipelines.reserve(1);
-    sensor_pipelines.emplace_back(settings_, client);
+    sensor_pipelines.emplace_back(
+      new SensorPipelineModules(settings_, client)
+    );
     pipeline_threads.emplace_back(
       [&sensor_pipelines, &client]
       {
-        sensor_pipelines[0].run();
+        sensor_pipelines[0]->run();
         client.stop();
       }
     );
@@ -135,11 +137,13 @@ void ClientNode::run()
     sensor_pipelines.reserve(pipeline_count);
     for (int i=0; i<pipeline_count; ++i)
     {
-      sensor_pipelines.emplace_back(settings_, client, i);
+      sensor_pipelines.emplace_back(
+        new SensorPipelineModules(settings_, client)
+      );
       pipeline_threads.emplace_back(
         [&sensor_pipelines, &client, i]
         {
-          sensor_pipelines[i].run();
+          sensor_pipelines[i]->run();
           client.stop();
         }
       );

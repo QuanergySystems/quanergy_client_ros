@@ -115,6 +115,8 @@ private:
 
   struct SensorPipelineModules
   {
+    using Ptr = std::unique_ptr<SensorPipelineModules>;
+
     ParserModuleType parser;
     EncoderAngleCalibrationType encoder_corrector;
     DistanceFilter distance_filter;
