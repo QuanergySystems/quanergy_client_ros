@@ -24,6 +24,11 @@ int returnFromString(const std::string& r)
     return ret;
   }
 
+  if (r == "all_separate_topics")
+  {
+    return ClientNode::ALL_SEPARATE_RETURNS;
+  }
+
   // Verify argument contains only digits
   if (!r.empty() && std::all_of(r.begin(), r.end(), ::isdigit))
   {
@@ -108,60 +113,59 @@ void ClientNode::run()
 {
   // create modules
   ClientType client(settings_.host, settings_.port, 100);
-  ParserModuleType parser;
-  DistanceFilter dFilter;
-  RingIntensityFilter rFilter;
-  ConverterType converter;
-  SimplePublisher<quanergy::PointXYZIR> publisher(settings_.topic, settings_.useRosTime);
-  EncoderAngleCalibrationType encoder_corrector;
-  encoder_corrector.setParams(settings_.amplitude, settings_.phase);
+  std::vector<SensorPipelineModules> sensor_pipelines;
+  std::vector<std::thread> pipeline_threads;
 
-  // setup modules
-  parser.get<PARSER_00_INDEX>().setFrameId(settings_.frame);
-  parser.get<PARSER_00_INDEX>().setReturnSelection(settings_.return_selection);
-  parser.get<PARSER_00_INDEX>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
-  parser.get<PARSER_01_INDEX>().setFrameId(settings_.frame);
-  parser.get<PARSER_04_INDEX>().setFrameId(settings_.frame);
-  parser.get<PARSER_04_INDEX>().setCloudSizeLimits(settings_.minCloudSize,settings_.maxCloudSize);
-  dFilter.setMaximumDistanceThreshold(settings_.max);
-  dFilter.setMinimumDistanceThreshold(settings_.min);
-  for (int i = 0; i < quanergy::client::M8_NUM_LASERS; i++)
+  // Run pipeline(s) in their own thread(s)
+  if (settings_.return_selection != ALL_SEPARATE_RETURNS)
   {
-    rFilter.setRingFilterMinimumRangeThreshold(i, settings_.ring_range[i]);
-    rFilter.setRingFilterMinimumIntensityThreshold(i, settings_.ring_intensity[i]);
+    sensor_pipelines.reserve(1);
+    sensor_pipelines.emplace_back(settings_, client);
+    pipeline_threads.emplace_back(
+      [&sensor_pipelines, &client]
+      {
+        sensor_pipelines[0].run();
+        client.stop();
+      }
+    );
+  }
+  else
+  {
+    int pipeline_count = quanergy::client::M8_NUM_RETURNS;
+    sensor_pipelines.reserve(pipeline_count);
+    for (int i=0; i<pipeline_count; ++i)
+    {
+      sensor_pipelines.emplace_back(settings_, client, i);
+      pipeline_threads.emplace_back(
+        [&sensor_pipelines, &client, i]
+        {
+          sensor_pipelines[i].run();
+          client.stop();
+        }
+      );
+    }
   }
 
-  // connect modules
-  std::vector<boost::signals2::connection> connections;
-  connections.push_back(client.connect([&parser](const ClientType::ResultType& pc){ parser.slot(pc); }));
-  connections.push_back(parser.connect([&encoder_corrector](const ParserModuleType::ResultType& pc){ encoder_corrector.slot(pc); }));
-  connections.push_back(encoder_corrector.connect([&dFilter](const EncoderAngleCalibrationType::ResultType& pc){ dFilter.slot(pc); }));
-  connections.push_back(dFilter.connect([&rFilter](const DistanceFilter::ResultType& pc){ rFilter.slot(pc); }));
-  connections.push_back(rFilter.connect([&converter](const RingIntensityFilter::ResultType& pc){ converter.slot(pc); }));
-  connections.push_back(converter.connect([&publisher](const ConverterType::ResultType& pc){ publisher.slot(pc); }));
+  // start client
+  try
+  {
+    client.run();
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "Terminating after catching exception: " 
+              << e.what() 
+              << std::endl;
+  }
 
-  // start client on a separate thread
-  std::thread client_thread([&client, &publisher]
-                            {
-                              try
-                              {
-                                client.run();
-                              }
-                              catch (std::exception& e)
-                              {
-                                std::cerr << "Terminating after catching exception: " << e.what() << std::endl;
-                                publisher.stop();
-                              }
-                            });
-
-
-  // start publisher (blocks until stopped)
-  publisher.run();
-
-  // clean up
-  client.stop();
-  connections.clear();
-  client_thread.join();
+  // Clean up ROS
+  ros::shutdown();
+  
+  for (auto &thread : pipeline_threads)
+  {
+    thread.join();
+  }
+  pipeline_threads.clear();
 }
 
 void ClientNode::loadSettings(int argc, char ** argv)
@@ -234,3 +238,117 @@ void ClientNode::parseArgs(int argc, char ** argv)
   pcl::console::parse_argument (argc, argv, "--min-cloud", settings_.minCloudSize);
   pcl::console::parse_argument (argc, argv, "--max-cloud", settings_.maxCloudSize);
 }
+
+// SensorPipelineModules 
+
+ClientNode::SensorPipelineModules::SensorPipelineModules(
+  const ClientNode::Settings &settings,
+  ClientNode::ClientType &client,
+  int return_selection /* = USE_SETTINGS_RETURN_SELECTION */)
+  : publisher(settings.topic, settings.useRosTime)
+{
+  if (return_selection == USE_SETTINGS_RETURN_SELECTION)
+  {
+    return_selection = settings.return_selection;
+  }
+
+  encoder_corrector.setParams(settings.amplitude, settings.phase);
+
+  // Setup modules
+
+  // Parsers
+  auto &parser00 = parser.get<PARSER_00_INDEX>();
+  auto &parser01 = parser.get<PARSER_01_INDEX>();
+  auto &parser04 = parser.get<PARSER_04_INDEX>();
+
+  // Parser 00
+  parser00.setFrameId(settings.frame);
+  parser00.setReturnSelection(return_selection);
+  parser00.setCloudSizeLimits(
+    settings.minCloudSize,
+    settings.maxCloudSize
+  );
+
+  // Parser 01
+  parser01.setFrameId(settings.frame);
+
+  // Parser 04
+  parser04.setFrameId(settings.frame);
+  parser04.setCloudSizeLimits(
+    settings.minCloudSize, 
+    settings.maxCloudSize
+  );
+
+  // Filters
+
+  // Distance Filter
+  distance_filter.setMaximumDistanceThreshold(settings.max);
+  distance_filter.setMinimumDistanceThreshold(settings.min);
+  for (int i = 0; i < quanergy::client::M8_NUM_LASERS; ++i)
+  {
+    ring_intensity_filter.setRingFilterMinimumRangeThreshold(
+      i, settings.ring_range[i]
+    );
+    ring_intensity_filter.setRingFilterMinimumIntensityThreshold(
+      i, settings.ring_intensity[i]
+    );
+  }
+
+  // Connect modules
+  // Client to Parser
+  connections.push_back(
+    client.connect(
+      [this](const ClientType::ResultType& pc){ parser.slot(pc); }
+    )
+  );
+  // Parser to Encoder Corrector
+  connections.push_back(
+    parser.connect(
+      [this](const ParserModuleType::ResultType& pc)
+      { encoder_corrector.slot(pc); }
+    )
+  );
+  // Encoder Corrector to Distance Filter
+  connections.push_back(
+    encoder_corrector.connect(
+      [this](const EncoderAngleCalibrationType::ResultType& pc)
+      { distance_filter.slot(pc); }
+    )
+  );
+  // Distance Filter to Ring Intensity Filter
+  connections.push_back(
+    distance_filter.connect(
+      [this](const DistanceFilter::ResultType& pc)
+      { ring_intensity_filter.slot(pc); }
+    )
+  );
+  // Ring Intensity Filter to Polar->Cartesian Converter
+  connections.push_back(
+    ring_intensity_filter.connect(
+      [this](const RingIntensityFilter::ResultType& pc)
+      { cartesian_converter.slot(pc); }
+    )
+  );
+  // Polar->Cartesian Converter to Publisher
+  connections.push_back(
+    cartesian_converter.connect(
+      [this](const ConverterType::ResultType& pc)
+      { publisher.slot(pc); }
+    )
+  );
+}
+
+void ClientNode::SensorPipelineModules::run()
+{
+  // Blocks until stopped 
+  publisher.run();
+
+  // Clean up
+  for (auto &connection : connections)
+  {
+    connection.disconnect();
+  }
+  connections.clear();
+}
+
+

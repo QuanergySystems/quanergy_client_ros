@@ -56,6 +56,10 @@ struct ClientNode
   typedef quanergy::client::DistanceFilter DistanceFilter;
   typedef quanergy::client::RingIntensityFilter RingIntensityFilter;
   typedef quanergy::client::PolarToCartConverter ConverterType;
+  
+  // Return selection flag specific to quanergy_client_ros
+  const static int ALL_SEPARATE_RETURNS = -2;
+  const static int USE_SETTINGS_RETURN_SELECTION = -3;
 
   ClientNode(int argc, char** argv);
   
@@ -65,14 +69,10 @@ struct ClientNode
   void run();
 
 private:
-
-  void loadSettings(int argc, char ** argv);
-  void parseArgs(int argc, char ** argv);
-
   // settings
   // Defaults overridded by settings file which is then
   // overridden by command-line options.
-  struct
+  struct Settings
   {
     // Distance filter
     float min = 0.5f;
@@ -109,6 +109,28 @@ private:
     std::int32_t maxCloudSize = 11000*quanergy::client::M8_NUM_LASERS;
 
   } settings_;
+
+  void loadSettings(int argc, char ** argv);
+  void parseArgs(int argc, char ** argv);
+
+  struct SensorPipelineModules
+  {
+    ParserModuleType parser;
+    EncoderAngleCalibrationType encoder_corrector;
+    DistanceFilter distance_filter;
+    RingIntensityFilter ring_intensity_filter;
+    ConverterType cartesian_converter;
+    SimplePublisher<quanergy::PointXYZIR> publisher;
+
+    std::vector<boost::signals2::connection> connections;
+
+    SensorPipelineModules(
+      const Settings &settings,
+      ClientType &client,
+      int return_selection = -3 // USE_SETTINGS_RETURN_SELECTION
+    );
+    void run();
+  };
 };
 
 
