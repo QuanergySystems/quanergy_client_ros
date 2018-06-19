@@ -252,7 +252,10 @@ ClientNode::SensorPipelineModules::SensorPipelineModules(
   int return_selection,
   ClientNode::ClientType &client)
   : publisher(
-      settings.topic + std::to_string(return_selection), 
+      settings.topic 
+      + ((return_selection == quanergy::client::ALL_RETURNS) ? 
+        "" : std::to_string(return_selection)
+      ),
       settings.useRosTime
     )
 {
