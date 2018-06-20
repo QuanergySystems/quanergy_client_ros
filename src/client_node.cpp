@@ -97,10 +97,10 @@ bool ClientNode::checkArgs(int argc, char** argv)
         << "    --encoder-phase-correction      phase offset (in rad) when applying encoder correction" << std::endl
         << "    --min                           minimum range for filtering" << std::endl
         << "    --max                           maximum range for filtering" << std::endl
-        << "    --topic                         ROS topic for publishing the point cloud" << std::endl
+        << "    --topic                         ROS topic for publishing the point cloud. If 'all_separate_topics' is chosen for --return, then a topic will be created for each return number with the return number appended to the topic name" << std::endl
         << "    --frame                         frame ID for the point cloud" << std::endl
         << "    --useRosTime                    boolean setting for point cloud time; uses sensor time if false" << std::endl
-        << "    --return                        return selection for multiple return M8 sensors" << std::endl
+        << "    --return                        return selection for multiple return M8 sensors. Options are 0, 1, 2, all, or all_separate_topics. If 'all' is chosen, then all 3 returns will be returned on one topic. If 'all_separate_topics' is chosen, then there will be one topic per return" << std::endl
         << "    --min-cloud                     minimum number of points for a valid cloud" << std::endl
         << "    --max-cloud                     maximum number of points allowed in a cloud" << std::endl
         << "-h, --help                          show this help and exit" << std::endl;
