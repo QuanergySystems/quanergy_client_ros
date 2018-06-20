@@ -45,6 +45,10 @@ public:
     }
   }
 
+  void run(const std::string& topic_name)
+  {
+    run(50., topic_name);
+  }
   /** \brief run the application */
   void run(double frequency = 50., const std::string& topic_name = "")
   {
