@@ -59,7 +59,6 @@ struct ClientNode
   
   // Return selection flag specific to quanergy_client_ros
   const static int ALL_SEPARATE_RETURNS = -2;
-  const static int USE_SETTINGS_RETURN_SELECTION = -3;
 
   ClientNode(int argc, char** argv);
   
