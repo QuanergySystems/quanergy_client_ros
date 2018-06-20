@@ -25,6 +25,8 @@ public:
   typedef pcl::PointCloud<PointT> Cloud;
   typedef typename Cloud::ConstPtr CloudConstPtr;
 
+  SimplePublisher(const std::string& topic, bool useRosTime = false)
+    : topic_(topic) , useRosTime_(useRosTime) {}
   SimplePublisher(bool useRosTime = false) : useRosTime_(useRosTime) {}
 
   void slot(const CloudConstPtr& cloud)
@@ -44,10 +46,26 @@ public:
   }
 
   /** \brief run the application */
-  void run(const std::string& topic_name, double frequency = 50.)
+  void run(double frequency = 50., const std::string& topic_name = "")
   {
     ros::NodeHandle n;
-    std::string topic = n.resolveName(topic_name);
+    std::string topic;
+    if (topic_name.empty())
+    {
+      if (topic_.empty())
+      {
+        topic = "unnamed";
+      }
+      else
+      {
+        topic = topic_;
+      }
+    }
+    else
+    {
+      topic = topic_name;
+    }
+    topic = n.resolveName(topic);
     // Don't advertise too many packets. 
     // If you do, you'll create a memory leak, as these things are *huge*.
     publisher_ = n.advertise<pcl::PointCloud<PointT> >(topic, 10);
@@ -67,6 +85,7 @@ public:
 
 private:
   std::mutex cloud_publisher_mutex_;
+  std::string topic_;
   bool useRosTime_;
   ros::Publisher publisher_;
 };
