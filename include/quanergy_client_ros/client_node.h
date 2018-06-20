@@ -128,10 +128,14 @@ private:
     SensorPipelineModules(
       const Settings &settings,
       int return_selection,
-      ClientType &client
+      ClientType &client,
+      bool add_return_number_to_topic = false
     );
 
     void run();
+    
+  private:  
+    std::string ros_topic_name_;
   };
 };
 

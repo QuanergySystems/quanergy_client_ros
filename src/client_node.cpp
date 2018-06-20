@@ -121,9 +121,9 @@ void ClientNode::run()
   {
     sensor_pipelines.reserve(1);
     sensor_pipelines.emplace_back(
+      // Don't add anything to the ROS topic name
       new SensorPipelineModules(
-        settings_, settings_.return_selection, client
-      )
+        settings_, settings_.return_selection, client)
     );
     pipeline_threads.emplace_back(
       [&sensor_pipelines, &client]
@@ -140,7 +140,8 @@ void ClientNode::run()
     for (int i=0; i<pipeline_count; ++i)
     {
       sensor_pipelines.emplace_back(
-        new SensorPipelineModules(settings_, i, client)
+        // Add the return number to the ROS topic name
+        new SensorPipelineModules(settings_, i, client, true)
       );
       pipeline_threads.emplace_back(
         [&sensor_pipelines, i, &client]
@@ -250,15 +251,16 @@ void ClientNode::parseArgs(int argc, char ** argv)
 ClientNode::SensorPipelineModules::SensorPipelineModules(
   const ClientNode::Settings &settings,
   int return_selection,
-  ClientNode::ClientType &client)
-  : publisher(
-      settings.topic 
-      + ((return_selection == quanergy::client::ALL_RETURNS) ? 
-        "" : std::to_string(return_selection)
-      ),
-      settings.useRosTime
-    )
+  ClientNode::ClientType &client,
+  bool add_return_number_to_topic /* = false */) 
+  : publisher(settings.useRosTime)
 {
+  ros_topic_name_ = settings.topic;
+  if (add_return_number_to_topic)
+  {
+    ros_topic_name_ += std::to_string(return_selection);
+  }
+
   encoder_corrector.setParams(settings.amplitude, settings.phase);
 
   // Setup modules
@@ -346,9 +348,9 @@ ClientNode::SensorPipelineModules::SensorPipelineModules(
 }
 
 void ClientNode::SensorPipelineModules::run()
-{
+{     
   // Blocks until stopped 
-  publisher.run();
+  publisher.run(ros_topic_name_);
 
   // Clean up
   for (auto &connection : connections)
