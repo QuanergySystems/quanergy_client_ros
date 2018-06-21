@@ -260,7 +260,7 @@ void ClientNode::waitForPublisherStartup(
   }
 
   bool waiting = true;
-  while (!waiting)
+  while (waiting)
   {
     bool ready = true;
     for (const SensorPipelineModules::Ptr& pipeline : pipelines)
