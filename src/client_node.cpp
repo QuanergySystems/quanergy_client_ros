@@ -89,7 +89,7 @@ bool ClientNode::checkArgs(int argc, char** argv)
   {
     std::cout << "usage: " << argv[0]
         << " [--settings <file>] [--host <host>] [--encoder-amplitude-correction <amplitude>] [--encoder-phase-correction <phase>] [--min <min>] [--max <max>] [--topic <topic>]"
-           " [--frame <frame>] [--useRosTime 0 | 1] [--return <number> | all] [--min-cloud <min>] [--max-cloud <max>] [-h | --help]" << std::endl
+           " [--frame <frame>] [--useRosTime 0 | 1] [--return <number> | all | all_separate_topics] [--min-cloud <min>] [--max-cloud <max>] [-h | --help]" << std::endl
         << std::endl
         << "    --settings                      settings file; these settings are overridden by commandline arguments" << std::endl
         << "    --host                          hostname or IP address of the sensor" << std::endl
