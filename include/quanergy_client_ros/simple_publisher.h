@@ -25,9 +25,14 @@ public:
   typedef pcl::PointCloud<PointT> Cloud;
   typedef typename Cloud::ConstPtr CloudConstPtr;
 
-  SimplePublisher(const std::string& topic, bool useRosTime = false)
+  SimplePublisher(
+    const std::string& topic = "unnamed", 
+    bool useRosTime = false)
     : topic_(topic) , useRosTime_(useRosTime) {}
-  SimplePublisher(bool useRosTime = false) : useRosTime_(useRosTime) {}
+  SimplePublisher(bool useRosTime)
+  {
+    SimplePublisher("unnamed", useRosTime);
+  }
 
   void slot(const CloudConstPtr& cloud)
   {
@@ -56,14 +61,7 @@ public:
     std::string topic;
     if (topic_name.empty())
     {
-      if (topic_.empty())
-      {
-        topic = "unnamed";
-      }
-      else
-      {
-        topic = topic_;
-      }
+      topic = topic_;
     }
     else
     {
