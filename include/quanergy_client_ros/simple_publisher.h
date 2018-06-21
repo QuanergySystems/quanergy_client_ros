@@ -75,6 +75,7 @@ public:
     publisher_ = n.advertise<pcl::PointCloud<PointT> >(topic, 10);
 
     ros::Rate r(frequency);
+    ready_ = true;
     while (ros::ok())
     {
       ros::spinOnce();
@@ -87,10 +88,16 @@ public:
     ros::shutdown();
   }
 
+  bool ready()
+  {
+    return ready_;
+  }
+
 private:
   std::mutex cloud_publisher_mutex_;
   std::string topic_;
   bool useRosTime_;
+  bool ready_;
   ros::Publisher publisher_;
 };
 

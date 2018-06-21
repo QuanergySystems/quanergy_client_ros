@@ -57,9 +57,6 @@ struct ClientNode
   typedef quanergy::client::RingIntensityFilter RingIntensityFilter;
   typedef quanergy::client::PolarToCartConverter ConverterType;
   
-  // Return selection flag specific to quanergy_client_ros
-  const static int ALL_SEPARATE_RETURNS = -2;
-
   ClientNode(int argc, char** argv);
   
   /// check whether valid arguments are provided and print usage if not
@@ -111,7 +108,14 @@ private:
 
   void loadSettings(int argc, char ** argv);
   void parseArgs(int argc, char ** argv);
+  int returnFromString(const std::string& r);
 
+  // Mutex for accessing the client
+  std::mutex client_mutex_;
+  // Whether or not to publish each return on a separate topic
+  bool separate_return_topics_ = false;
+  // The various steps of reading data from a parser bundled into a
+  // structure
   struct SensorPipelineModules
   {
     using Ptr = std::unique_ptr<SensorPipelineModules>;
@@ -131,12 +135,18 @@ private:
       ClientType &client,
       bool add_return_number_to_topic = false
     );
+    ~SensorPipelineModules();
 
     void run();
     
   private:  
     std::string ros_topic_name_;
   };
+ 
+  // Block until publishers in all pipelines are ready 
+  void waitForPublisherStartup(
+    const std::vector<SensorPipelineModules::Ptr>& pipelines
+  );
 };
 
 

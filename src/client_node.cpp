@@ -14,7 +14,7 @@
 
 #include <pcl/console/parse.h>
 
-int returnFromString(const std::string& r)
+int ClientNode::returnFromString(const std::string& r)
 {
   int ret;
 
@@ -26,7 +26,8 @@ int returnFromString(const std::string& r)
 
   if (r == "all_separate_topics")
   {
-    return ClientNode::ALL_SEPARATE_RETURNS;
+    separate_return_topics_ = true;
+    return quanergy::client::ALL_RETURNS;
   }
 
   // Verify argument contains only digits
@@ -117,23 +118,7 @@ void ClientNode::run()
   std::vector<std::thread> pipeline_threads;
 
   // Run pipeline(s) in their own thread(s)
-  if (settings_.return_selection != ALL_SEPARATE_RETURNS)
-  {
-    sensor_pipelines.reserve(1);
-    sensor_pipelines.emplace_back(
-      // Don't add anything to the ROS topic name
-      new SensorPipelineModules(
-        settings_, settings_.return_selection, client)
-    );
-    pipeline_threads.emplace_back(
-      [&sensor_pipelines, &client]
-      {
-        sensor_pipelines[0]->run();
-        client.stop();
-      }
-    );
-  }
-  else
+  if (separate_return_topics_)
   {
     int pipeline_count = quanergy::client::M8_NUM_RETURNS;
     sensor_pipelines.reserve(pipeline_count);
@@ -144,14 +129,33 @@ void ClientNode::run()
         new SensorPipelineModules(settings_, i, client, true)
       );
       pipeline_threads.emplace_back(
-        [&sensor_pipelines, i, &client]
+        [&sensor_pipelines, i, &client, this]
         {
           sensor_pipelines[i]->run();
+          std::lock_guard<std::mutex> lock(client_mutex_);
           client.stop();
         }
       );
     }
   }
+  else
+  {
+    sensor_pipelines.emplace_back(
+      // Don't add anything to the ROS topic name
+      new SensorPipelineModules(
+        settings_, settings_.return_selection, client)
+    );
+    pipeline_threads.emplace_back(
+      [&sensor_pipelines, &client, this]
+      {
+        sensor_pipelines[0]->run();
+        std::lock_guard<std::mutex> lock(client_mutex_);
+        client.stop();
+      }
+    );
+  }
+
+  waitForPublisherStartup(sensor_pipelines);
 
   // start client
   try
@@ -246,6 +250,39 @@ void ClientNode::parseArgs(int argc, char ** argv)
   pcl::console::parse_argument (argc, argv, "--max-cloud", settings_.maxCloudSize);
 }
 
+void ClientNode::waitForPublisherStartup(
+  const std::vector<ClientNode::SensorPipelineModules::Ptr>& pipelines
+)
+{
+  if (pipelines.empty())
+  {
+    return;
+  }
+
+  bool waiting = true;
+  while (!waiting)
+  {
+    bool ready = true;
+    for (const SensorPipelineModules::Ptr& pipeline : pipelines)
+    {
+      if (!pipeline->publisher.ready())
+      {
+        ready = false;
+        break;
+      }
+    }
+
+    if (!ready)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    else
+    {
+      waiting = false;
+    }
+  }
+}
+
 // SensorPipelineModules 
 
 ClientNode::SensorPipelineModules::SensorPipelineModules(
@@ -256,7 +293,7 @@ ClientNode::SensorPipelineModules::SensorPipelineModules(
   : publisher(settings.useRosTime)
 {
   ros_topic_name_ = settings.topic;
-  if (add_return_number_to_topic)
+  if (add_return_number_to_topic && return_selection >= 0)
   {
     ros_topic_name_ += std::to_string(return_selection);
   }
@@ -347,17 +384,20 @@ ClientNode::SensorPipelineModules::SensorPipelineModules(
   );
 }
 
-void ClientNode::SensorPipelineModules::run()
-{     
-  // Blocks until stopped 
-  publisher.run(ros_topic_name_);
-
+ClientNode::SensorPipelineModules::~SensorPipelineModules()
+{
   // Clean up
   for (auto &connection : connections)
   {
     connection.disconnect();
   }
   connections.clear();
+}
+
+void ClientNode::SensorPipelineModules::run()
+{     
+  // Blocks until stopped 
+  publisher.run(ros_topic_name_);
 }
 
 
