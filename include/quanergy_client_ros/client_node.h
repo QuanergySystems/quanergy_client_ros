@@ -56,7 +56,7 @@ struct ClientNode
   typedef quanergy::client::DistanceFilter DistanceFilter;
   typedef quanergy::client::RingIntensityFilter RingIntensityFilter;
   typedef quanergy::client::PolarToCartConverter ConverterType;
-
+  
   ClientNode(int argc, char** argv);
   
   /// check whether valid arguments are provided and print usage if not
@@ -65,14 +65,10 @@ struct ClientNode
   void run();
 
 private:
-
-  void loadSettings(int argc, char ** argv);
-  void parseArgs(int argc, char ** argv);
-
   // settings
   // Defaults overridded by settings file which is then
   // overridden by command-line options.
-  struct
+  struct Settings
   {
     // Distance filter
     float min = 0.5f;
@@ -109,6 +105,48 @@ private:
     std::int32_t maxCloudSize = 11000*quanergy::client::M8_NUM_LASERS;
 
   } settings_;
+
+  void loadSettings(int argc, char ** argv);
+  void parseArgs(int argc, char ** argv);
+  int returnFromString(const std::string& r);
+
+  // Mutex for accessing the client
+  std::mutex client_mutex_;
+  // Whether or not to publish each return on a separate topic
+  bool separate_return_topics_ = false;
+  // The various steps of reading data from a parser bundled into a
+  // structure
+  struct SensorPipelineModules
+  {
+    using Ptr = std::unique_ptr<SensorPipelineModules>;
+
+    ParserModuleType parser;
+    EncoderAngleCalibrationType encoder_corrector;
+    DistanceFilter distance_filter;
+    RingIntensityFilter ring_intensity_filter;
+    ConverterType cartesian_converter;
+    SimplePublisher<quanergy::PointXYZIR> publisher;
+
+    std::vector<boost::signals2::connection> connections;
+
+    SensorPipelineModules(
+      const Settings &settings,
+      int return_selection,
+      ClientType &client,
+      bool add_return_number_to_topic = false
+    );
+    ~SensorPipelineModules();
+
+    void run();
+    
+  private:  
+    std::string ros_topic_name_;
+  };
+ 
+  // Block until publishers in all pipelines are ready 
+  void waitForPublisherStartup(
+    const std::vector<SensorPipelineModules::Ptr>& pipelines
+  );
 };
 
 
