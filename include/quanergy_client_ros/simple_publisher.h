@@ -95,7 +95,7 @@ private:
   std::mutex cloud_publisher_mutex_;
   std::string topic_;
   bool useRosTime_;
-  bool ready_;
+  bool ready_ = false;
   ros::Publisher publisher_;
 };
 
