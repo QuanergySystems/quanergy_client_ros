@@ -1,0 +1,81 @@
+Quanergy Systems, Inc. SDK License Agreement Version 1.0 July 2018
+
+This license governs use of the accompanying Quanergy Systems, Inc. (“Quanergy”) Software. 
+If you use the Software, you accept this license. If you do not accept this license, do not
+use the Software.
+
+1. Definitions.
+
+"Software" shall mean the Quanergy Software Development Kit software made available under this 
+license and any enhancements, updates, or improvements thereto, made available by Quanergy.
+
+"Derivative Works" shall mean any work that is based on (or derived from) the Software and for 
+which the revisions, annotations, elaborations, or other modifications represent, as a whole, 
+an original work of authorship. For the purposes of this license, Derivative Works shall not 
+include works that remain separable from, or merely link (or bind by name) to the interfaces of, 
+the Software.
+
+"Contribution" shall mean any Derivative Work or other modification or addition to the Software, 
+which is submitted to Quanergy for inclusion in the Software by you. For the purposes of this 
+definition, "submitted" means any form of electronic, verbal, or written communication sent to 
+Quanergy or its representatives via any means. 
+
+2. Grant of License.
+
+Subject to the terms and conditions of this license, Quanergy grants to you a perpetual, worldwide, 
+non-exclusive, no-charge, royalty-free, irrevocable copyright license to (i) reproduce, prepare 
+Derivative Works of, publicly display, publicly perform, sublicense, and distribute the Software 
+and such Derivative Works solely in binary form; and (ii) reproduce and prepare Derivative Works 
+of the Software solely in source code form. You may not distribute or transfer the Software or 
+Derivative Works in source code form.  
+
+3. Redistribution.
+
+If you distribute any copy of the Software or Derivative Works in binary form in any medium, you 
+must give the recipient of the Software or Derivative Work a copy of this License Agreement along 
+with such copy. You may provide additional or different license terms and conditions for use, 
+reproduction, or distribution of your modifications, or for any Derivative Works as a whole, 
+provided your use, reproduction, and distribution of the Software is solely in binary form, 
+whether modified or unmodified, and otherwise complies with the conditions stated in this license.
+
+4. Submission of Contributions.
+
+You may, but are not required to, submit Contributions to Quanergy. Any Contribution submitted by 
+you to Quanergy, whether by email or any other method or medium of submission, shall be owned by 
+Quanergy and if included by Quanergy with the Software, shall automatically be deemed to be part of 
+the Software provided under this license. For directions on how to submit a Contribution to Quanergy, 
+please contact Quanergy at support@quanergy.com. You hereby assign all rights, title and interest in 
+and to Contributions to Quanergy. If you submit a Contribution to Quanergy, you hereby grant to 
+Quanergy a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable, fully 
+transferable and sublicensable patent license to make, have made, use, offer to sell, sell, import, 
+and otherwise use and transfer the Contribution as part of the Software, where such license applies 
+only to those patent claims you own or control, which are necessarily infringed by the Contribution 
+or Software. If you institute patent litigation against any entity (including a cross-claim or 
+counterclaim in a lawsuit) alleging that the Software constitutes direct or contributory patent 
+infringement, then any licenses granted to you under this license for the Software shall terminate 
+as of the date such litigation is filed.
+
+5. Trademarks.
+
+This license does not grant permission to use the trade names, trademarks, service marks, or product 
+names of Quanergy, except as required for reasonable and customary use in describing the origin of 
+the Software and reproducing the copyright notice referenced in Section 3 above.
+
+6. Disclaimer of Warranty; Limitation of Liability.
+
+THIS SOFTWARE IS PROVIDED BY QUANERGY "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT 
+NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL QUANERGY BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS 
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+7. Accepting Warranty or Additional Liability.
+
+While redistributing the Software or Derivative Works thereof in binary form, you may choose to offer, 
+and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations and/or 
+rights consistent with this license. However, in accepting such obligations, you may act only on your 
+own behalf and on your sole responsibility, not on behalf of Quanergy, and only if you agree to 
+indemnify, defend, and hold Quanergy harmless for any liability incurred by, or claims asserted against, 
+Quanergy by reason of your accepting any such warranty or additional liability.
