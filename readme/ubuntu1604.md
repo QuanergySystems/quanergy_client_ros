@@ -9,13 +9,13 @@ Install quanergy_client (SDK)
 cd ~/QuanergySystems/quanergy_client/build
 sudo make install
 ```
-## Install ROS Kinetic  RVIZ and configure environment
+## Install ROS Kinetic RVIZ and configure environment
 
 ```
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0xB01FA116
 sudo apt-get update
-sudo apt-get install ros-kinetic-rviz ros-kinetic-pcl-ros ros-kinetic-rosbash
+sudo apt-get install libvtk6-dev ros-kinetic-rviz ros-kinetic-pcl-ros ros-kinetic-rosbash
 sudo apt-get install libhdf5-openmpi-dev
 source /opt/ros/kinetic/setup.bash
 ```
