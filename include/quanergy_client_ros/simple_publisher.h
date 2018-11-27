@@ -28,10 +28,12 @@ public:
   SimplePublisher(
     const std::string& topic = "unnamed", 
     bool useRosTime = false)
-    : topic_(topic) , useRosTime_(useRosTime) {}
-  SimplePublisher(bool useRosTime)
+    : topic_(topic) , useRosTime_(useRosTime)
   {
-    SimplePublisher("unnamed", useRosTime);
+  }
+
+  SimplePublisher(bool useRosTime) : SimplePublisher("unnamed", useRosTime)
+  {
   }
 
   void slot(const CloudConstPtr& cloud)
