@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(QuanergyClient REQUIRED)
-find_package(PCL REQUIRED COMPONENTS common io)
+find_package(PCL REQUIRED COMPONENTS common)
 
 # Workaround required due to a bug in VTK6 for Ubuntu 16.04
 # See https://bugs.launchpad.net/ubuntu/+source/vtk6/+bug/1573234
@@ -50,7 +50,6 @@ file(GLOB_RECURSE project_HEADERS
 ## Declare a cpp executable
 add_executable(client_node 
   src/client_node.cpp
-  src/main.cpp
   ${project_HEADERS})
 
 ## Specify libraries to link a library or executable target against

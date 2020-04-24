@@ -1,37 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Settings>
+  <ClientRos>
+    <topic>points</topic>
 
+    <useRosTime>true</useRosTime>
+  </ClientRos>
+
+  <!-- sensor host name or IP can be provided here 
+       though it is typically done on command line. -->
+  <host></host>
+
+  <!-- frame name inserted in the point cloud -->
+  <frame>quanergy</frame>
+
+  <!-- return selection
+       only applies to DataPacket00 (M-series)
+       options: 0, 1, 2, all, or all_separate_topics -->
+  <return>0</return>
+
+  <!-- encoder correction parameters; M-series only -->
+  <EncoderCorrection>
+    <!-- whether to calculate the parameters from sensor data before applying -->
+    <calibrate>false</calibrate>
+    <!-- frame rate of the sensor; used when calibrate == true only -->
+    <frameRate>10.0</frameRate>
+    <!-- whther to override parameters on the sensor -->
+    <override>false</override>
+    <!-- amplitude (radians) for override -->
+    <amplitude>0.0</amplitude>
+    <!-- phase (radians) for override -->
+    <phase>0.0</phase>
+  </EncoderCorrection>
+
+  <!-- Distance filer for points -->
   <DistanceFilter>
-    <min>0.5</min>
+    <min>0.0</min>
     <max>500.0</max>
   </DistanceFilter>
 
+  <!-- used to validate point cloud size from the M-series
+       not typically used because meaningfull numbers depend on
+       frame rate and FOV being used -->
+  <minCloudSize></minCloudSize>
+  <maxCloudSize></maxCloudSize>
+
+  <!-- Ring filter; generally this is not needed
+       only relevant for M-series -->
   <RingFilter>
     <Range0>0.0</Range0> <Intensity0>0</Intensity0>
     <Range1>0.0</Range1> <Intensity1>0</Intensity1>
     <Range2>0.0</Range2> <Intensity2>0</Intensity2>
     <Range3>0.0</Range3> <Intensity3>0</Intensity3>
-
     <Range4>0.0</Range4> <Intensity4>0</Intensity4>
     <Range5>0.0</Range5> <Intensity5>0</Intensity5>
     <Range6>0.0</Range6> <Intensity6>0</Intensity6>
     <Range7>0.0</Range7> <Intensity7>0</Intensity7>
   </RingFilter>
-
-  <EncoderCorrection>
-    <amplitude>0.0</amplitude>
-    <phase>0.0</phase>
-  </EncoderCorrection>
-
-  <ClientRos>
-    <host>10.0.0.3</host>
-
-    <topic>points</topic>
-    <frame>sensor</frame>
-
-    <useRosTime>true</useRosTime>
-
-    <return>0</return>
-  </ClientRos>
 
 </Settings>
