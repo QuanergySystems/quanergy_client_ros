@@ -45,7 +45,8 @@ public:
       ros_cloud.header.stamp = ros::Time::now();
     }
 
-    std::unique_lock<std::mutex> lock(cloud_publisher_mutex_, std::try_to_lock);
+    // don't block if publisher isn't available
+    std::unique_lock<std::timed_mutex> lock(cloud_publisher_mutex_, std::chrono::milliseconds(10));
     if (lock)
     {
       publisher_.publish(ros_cloud);
@@ -69,7 +70,7 @@ public:
   }
 
 private:
-  std::mutex cloud_publisher_mutex_;
+  std::timed_mutex cloud_publisher_mutex_;
   bool use_ros_time_;
   ros::Publisher publisher_;
 };

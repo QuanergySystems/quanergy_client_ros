@@ -23,6 +23,9 @@
 // sensor pipeline
 #include <quanergy/pipelines/sensor_pipeline.h>
 
+// async module for multithreading
+#include <quanergy/pipelines/async.h>
+
 // settings specific to ROS
 struct RosNodeSettings
 {
@@ -187,6 +190,10 @@ int main(int argc, char** argv)
   // create client to get raw packets from the sensor
   quanergy::client::SensorClient client(pipeline_settings.host, port, 100);
 
+  // create list (because it is noncopyable) of asyncs that will use if all_separate_topics so processing can happen on separate threads
+  using Async = quanergy::pipeline::AsyncModule<std::shared_ptr<std::vector<char>>>;
+  std::list<Async> asyncs;
+
   // create list (because it is noncopyable) of pipelines to produce point cloud from raw packets
   // we may need multiple for separate_return_topics
   std::list<quanergy::pipeline::SensorPipeline> pipelines;
@@ -232,10 +239,30 @@ int main(int argc, char** argv)
     publishers.emplace_back(nh, topic, ros_node_settings.use_ros_time);
     auto& publisher = publishers.back();
 
-    // connect client to pipeline
-    connections.push_back(client.connect(
-      [&pipeline](const std::shared_ptr<std::vector<char>>& packet){ pipeline.slot(packet); }
-    ));
+    if (ros_node_settings.separate_return_topics)
+    {
+      // create async to put pipelines on separate threads
+      // need larger queue because the parser collects ~100 packets to assemble into point cloud
+      asyncs.emplace_back(100); 
+      auto& async = asyncs.back();
+
+      // connect client to async
+      connections.push_back(client.connect(
+        [&async](const std::shared_ptr<std::vector<char>>& packet){ async.slot(packet); }
+      ));
+
+      // connect async to pipeline
+      connections.push_back(async.connect(
+        [&pipeline](const std::shared_ptr<std::vector<char>>& packet){ pipeline.slot(packet); }
+      ));
+    }
+    else
+    {
+      // connect client to pipeline
+      connections.push_back(client.connect(
+        [&pipeline](const std::shared_ptr<std::vector<char>>& packet){ pipeline.slot(packet); }
+      ));
+    }
 
     // connect the pipeline to the publisher
     connections.push_back(pipeline.connect(
