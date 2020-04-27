@@ -218,7 +218,7 @@ int main(int argc, char** argv)
   int pipeline_count = 1;
   if (ros_node_settings.separate_return_topics)
   {
-    pipeline_count = quanergy::client::M8_NUM_RETURNS;
+    pipeline_count = quanergy::client::M_SERIES_NUM_RETURNS;
   }
 
   for (int i = 0; i < pipeline_count; ++i)
