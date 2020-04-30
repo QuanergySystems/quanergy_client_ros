@@ -1,161 +1,296 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
 
-#include <quanergy_client_ros/client_node.h>
+// publisher module
+#include <quanergy_client_ros/simple_publisher.h>
 
-#include <iostream>
+#include <quanergy/client/version.h>
 
-// Simple application settings wrapper around boost property tree.
-#include <quanergy_client_ros/settings.h>
+#if (QUANERGY_CLIENT_VERSION/100000 != 4)
+  #error Incompatible Quanergy Client Version; looking for v4.x.x
+#endif
 
-#include <pcl/console/parse.h>
+// console parser
+#include <boost/program_options.hpp>
 
-int ClientNode::returnFromString(const std::string& r)
+// TCP client for sensor
+#include <quanergy/client/sensor_client.h>
+
+// sensor pipeline
+#include <quanergy/pipelines/sensor_pipeline.h>
+
+// async module for multithreading
+#include <quanergy/pipelines/async.h>
+
+// settings specific to ROS
+struct RosNodeSettings
 {
-  int ret;
+  // Whether or not to publish each return on a separate topic
+  // This reuses SensorPipeline's return_selection with an additional option
+  bool separate_return_topics = false;
 
-  if (r == "all")
-  {
-    ret = quanergy::client::ALL_RETURNS;
-    return ret;
-  }
+  // ROS topic to publish on
+  std::string topic = "points";
 
-  if (r == "all_separate_topics")
-  {
-    separate_return_topics_ = true;
-    return quanergy::client::ALL_RETURNS;
-  }
+  // determines whether to use ROS Time in the ROS Msg.
+  bool use_ros_time = false;
 
-  // Verify argument contains only digits
-  if (!r.empty() && std::all_of(r.begin(), r.end(), ::isdigit))
+  /** \brief loads settings from SettingsFileLoader */
+  void load(const quanergy::pipeline::SettingsFileLoader& settings);
+};
+
+int main(int argc, char** argv)
+{
+  ros::init(argc, argv, "quanergy_client_ros");
+  ros::NodeHandle nh;
+
+  namespace po = boost::program_options;
+
+  po::options_description description("Quanergy Client ROS Node");
+  const po::positional_options_description p; // empty positional options
+
+  quanergy::pipeline::SensorPipelineSettings pipeline_settings;
+  RosNodeSettings ros_node_settings;
+  std::string return_string;
+  std::vector<float> correct_params;
+
+  // port
+  std::string port = "4141";
+
+  description.add_options()
+    ("help,h", "Display this help message.")
+    ("settings-file,s", po::value<std::string>(),
+      "Settings file. Setting file values override defaults and command line arguments override the settings file.")
+    ("topic,t", po::value<std::string>(&ros_node_settings.topic)->
+      default_value(ros_node_settings.topic), 
+      "ROS topic for publishing the point cloud. If 'all_separate_topics' is chosen for --return, " 
+      "a topic will be created for each return number with the return number appended to the topic name.")
+    ("use-ros-time", po::bool_switch(&ros_node_settings.use_ros_time),
+      "flag determining whether to use ROS time in message; uses sensor time otherwise,")
+    ("host", po::value<std::string>(&pipeline_settings.host),
+      "Host name or IP of the sensor.")
+    ("frame,f", po::value<std::string>(&pipeline_settings.frame)->
+      default_value(pipeline_settings.frame),
+      "Frame name inserted in the point cloud.")
+    ("return,r", po::value<std::string>(&return_string)->
+      default_value(pipeline_settings.stringFromReturn(pipeline_settings.return_selection)),
+      "Return selection for multiple return M-series sensors. "
+      "Options are 0, 1, 2, all, or all_separate_topics. "
+      "If 'all' is chosen, then all 3 returns will be in an unorganized point cloud. "
+      "If 'all_separate_topics' is chosen, then there will be one topic per return.")
+    ("calibrate", po::bool_switch(&pipeline_settings.calibrate),
+      "Flag indicating encoder calibration should be performed and applied to outgoing points; M-series only.")
+    ("frame-rate", po::value<double>(&pipeline_settings.frame_rate)->
+      default_value(pipeline_settings.frame_rate),
+      "Frame rate used when peforming encoder calibration; M-series only.")
+    ("manual-correct", po::value<std::vector<float>>(&correct_params)->multitoken()->value_name("amplitude phase"),
+      "Correct encoder error with user defined values. Both amplitude and phase are in radians; M-series only.")
+    ("min-distance", po::value<float>(&pipeline_settings.min_distance)->
+      default_value(pipeline_settings.min_distance),
+      "minimum distance (inclusive) for distance filtering.")
+    ("max-distance", po::value<float>(&pipeline_settings.max_distance)->
+      default_value(pipeline_settings.max_distance),
+      "maximum distance (inclusive) for distance filtering.")
+    ("min-cloud-size", po::value<std::int32_t>(&pipeline_settings.min_cloud_size)->
+      default_value(pipeline_settings.min_cloud_size),
+      "minimum cloud size; produces an error and ignores clouds smaller than this.")
+    ("max-cloud-size", po::value<std::int32_t>(&pipeline_settings.max_cloud_size)->
+      default_value(pipeline_settings.max_cloud_size),
+      "maximum cloud size; produces an error and ignores clouds larger than this.");
+
+  try
   {
-    ret = std::atoi(r.c_str());
-    if (ret < 0 || ret >= quanergy::client::M8_NUM_RETURNS)
+    // load the command line options into the variables map
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
+
+    if (vm.count("help"))
     {
-      throw std::invalid_argument("Invalid return selection");
+      std::cout << description << std::endl;
+      return 0;
     }
-  }
-  else
-  {
-    throw std::invalid_argument("Invalid return selection");
-  }
 
-  return ret;
-}
-
-std::string stringFromReturn(int r)
-{
-  std::string ret;
-
-  if (r == quanergy::client::ALL_RETURNS)
-  {
-    ret = "all";
-  }
-  else if (r >= 0 && r < quanergy::client::M8_NUM_RETURNS)
-  {
-    ret = std::to_string(r);
-  }
-  else
-  {
-    throw std::invalid_argument("Invalid return selection");
-  }
-
-  return ret;
-}
-
-ClientNode::ClientNode(int argc, char** argv)
-{
-  ros::init(argc, argv, "Client");
-
-  for (int i = 0; i < quanergy::client::M8_NUM_LASERS; i++)
-  {
-    settings_.ring_range[i] = settings_.default_ring_range;
-    settings_.ring_intensity[i] = settings_.default_ring_intensity;
-  }
-
-  loadSettings(argc, argv);
-  parseArgs(argc, argv);
-}
-
-bool ClientNode::checkArgs(int argc, char** argv)
-{
-  if (pcl::console::find_switch(argc, argv, "-h") ||
-      pcl::console::find_switch(argc, argv, "--help") ||
-      (!pcl::console::find_switch(argc, argv, "--settings") &&
-       !pcl::console::find_switch(argc, argv, "--host")))
-  {
-    std::cout << "usage: " << argv[0]
-        << " [--settings <file>] [--host <host>] [--encoder-amplitude-correction <amplitude>] [--encoder-phase-correction <phase>] [--min <min>] [--max <max>] [--topic <topic>]"
-           " [--frame <frame>] [--useRosTime 0 | 1] [--return <number> | all | all_separate_topics] [--min-cloud <min>] [--max-cloud <max>] [-h | --help]" << std::endl
-        << std::endl
-        << "    --settings                      settings file; these settings are overridden by commandline arguments" << std::endl
-        << "    --host                          hostname or IP address of the sensor" << std::endl
-        << "    --encoder-amplitude-correction  amplitude when applying encoder correction" << std::endl
-        << "    --encoder-phase-correction      phase offset (in rad) when applying encoder correction" << std::endl
-        << "    --min                           minimum range for filtering" << std::endl
-        << "    --max                           maximum range for filtering" << std::endl
-        << "    --topic                         ROS topic for publishing the point cloud. If 'all_separate_topics' is chosen for --return, then a topic will be created for each return number with the return number appended to the topic name" << std::endl
-        << "    --frame                         frame ID for the point cloud" << std::endl
-        << "    --useRosTime                    boolean setting for point cloud time; uses sensor time if false" << std::endl
-        << "    --return                        return selection for multiple return M8 sensors. Options are 0, 1, 2, all, or all_separate_topics. If 'all' is chosen, then all 3 returns will be returned on one topic. If 'all_separate_topics' is chosen, then there will be one topic per return" << std::endl
-        << "    --min-cloud                     minimum number of points for a valid cloud" << std::endl
-        << "    --max-cloud                     maximum number of points allowed in a cloud" << std::endl
-        << "-h, --help                          show this help and exit" << std::endl;
-    return false;
-  }
-  return true;
-}
-
-void ClientNode::run()
-{
-  // create modules
-  ClientType client(settings_.host, settings_.port, 100);
-  std::vector<SensorPipelineModules::Ptr> sensor_pipelines;
-  std::vector<std::thread> pipeline_threads;
-
-  // Run pipeline(s) in their own thread(s)
-  if (separate_return_topics_)
-  {
-    int pipeline_count = quanergy::client::M8_NUM_RETURNS;
-    sensor_pipelines.reserve(pipeline_count);
-    for (int i=0; i<pipeline_count; ++i)
+    // if there is a settings file, load that before notifying (which fills the variables)
+    if (vm.count("settings-file"))
     {
-      sensor_pipelines.emplace_back(
-        // Add the return number to the ROS topic name
-        new SensorPipelineModules(settings_, i, client, true)
-      );
-      pipeline_threads.emplace_back(
-        [&sensor_pipelines, i, &client, this]
-        {
-          sensor_pipelines[i]->run();
-          std::lock_guard<std::mutex> lock(client_mutex_);
-          client.stop();
-        }
-      );
-    }
-  }
-  else
-  {
-    sensor_pipelines.emplace_back(
-      // Don't add anything to the ROS topic name
-      new SensorPipelineModules(
-        settings_, settings_.return_selection, client)
-    );
-    pipeline_threads.emplace_back(
-      [&sensor_pipelines, &client, this]
+      std::string settings_file = vm["settings-file"].as<std::string>();
+      quanergy::pipeline::SettingsFileLoader file_loader;
+      file_loader.loadXML(settings_file);
+      ros_node_settings.load(file_loader);
+
+      if (ros_node_settings.separate_return_topics)
       {
-        sensor_pipelines[0]->run();
-        std::lock_guard<std::mutex> lock(client_mutex_);
+        // we'll deal with this later but we need to change the value in settings
+        // since pipeline_settings won't know how to handle it
+        file_loader.put("Settings.return", pipeline_settings.stringFromReturn(0));
+      }
+
+      pipeline_settings.load(file_loader);
+    }
+
+    // notify; this stores command line options in associated variables
+    po::notify(vm);
+
+    // let the user know if there is no host value
+    if (pipeline_settings.host.empty())
+    {
+      std::cout << "No host provided" << std::endl;
+      std::cout << description << std::endl;
+      return -1;
+    }
+
+    // handle return selection
+    if (!return_string.empty())
+    {
+      if (return_string == "all_separate_topics")
+      {
+        ros_node_settings.separate_return_topics = true;
+        pipeline_settings.return_selection = 0;
+      }
+      else
+      {
+        pipeline_settings.return_selection = pipeline_settings.returnFromString(return_string);
+      }
+    }
+
+    // handle encoder correction parameters
+    if (!correct_params.empty())
+    {
+      if (correct_params.size() == 2)
+      {
+        pipeline_settings.override_encoder_params = true;
+        pipeline_settings.amplitude = correct_params[0];
+        pipeline_settings.phase = correct_params[1];
+      }
+      else
+      {
+        std::cout << "Manual encoder correction expects exactly 2 paramters: amplitude and phase" << std::endl;
+        std::cout << description << std::endl;
+        return -1;
+      }
+    }
+  }
+  catch (po::error& e)
+  {
+    std::cout << "Boost Program Options Error: " << e.what() << std::endl << std::endl;
+    std::cout << description << std::endl;
+    return -1;
+  }
+  catch (std::exception& e)
+  {
+    std::cout << "Error: " << e.what() << std::endl;
+    return -2;
+  }
+
+
+  // create client to get raw packets from the sensor
+  quanergy::client::SensorClient client(pipeline_settings.host, port, 100);
+
+  // create list (because it is noncopyable) of asyncs that will use if all_separate_topics so processing can happen on separate threads
+  using Async = quanergy::pipeline::AsyncModule<std::shared_ptr<std::vector<char>>>;
+  std::list<Async> asyncs;
+
+  // create list (because it is noncopyable) of pipelines to produce point cloud from raw packets
+  // we may need multiple for separate_return_topics
+  std::list<quanergy::pipeline::SensorPipeline> pipelines;
+
+  // create list (because it is noncopyable) of ROS publishers to consume point clouds and publish them
+  // we may need multiple for separate_return_topics
+  std::list<SimplePublisher<quanergy::PointXYZIR>> publishers;
+
+  // create vector of threads for publisher(s)
+  // we may need multiple for separate_return_topics
+  std::vector<std::thread> publisher_threads;
+
+  // store connections for cleaner shutdown
+  std::vector<boost::signals2::connection> connections;
+
+  // Some synchronization stuff
+  std::mutex client_mutex;
+  std::atomic<int> publishers_count = {0};
+  std::condition_variable publisher_cv;
+
+  // connect things and run publisher(s) on their own thread(s)
+  int pipeline_count = 1;
+  if (ros_node_settings.separate_return_topics)
+  {
+    pipeline_count = quanergy::client::M_SERIES_NUM_RETURNS;
+  }
+
+  for (int i = 0; i < pipeline_count; ++i)
+  {
+    // set return for pipeline and define topic, if needed
+    std::string topic = ros_node_settings.topic;
+    if (ros_node_settings.separate_return_topics)
+    {
+      pipeline_settings.return_selection = i;
+      topic += std::to_string(i);
+    }
+
+    // create pipeline and get reference to it
+    pipelines.emplace_back(pipeline_settings);
+    auto& pipeline = pipelines.back();
+
+    // create publisher and get reference to it
+    publishers.emplace_back(nh, topic, ros_node_settings.use_ros_time);
+    auto& publisher = publishers.back();
+
+    if (ros_node_settings.separate_return_topics)
+    {
+      // create async to put pipelines on separate threads
+      // need larger queue because the parser collects ~100 packets to assemble into point cloud
+      asyncs.emplace_back(100); 
+      auto& async = asyncs.back();
+
+      // connect client to async
+      connections.push_back(client.connect(
+        [&async](const std::shared_ptr<std::vector<char>>& packet){ async.slot(packet); }
+      ));
+
+      // connect async to pipeline
+      connections.push_back(async.connect(
+        [&pipeline](const std::shared_ptr<std::vector<char>>& packet){ pipeline.slot(packet); }
+      ));
+    }
+    else
+    {
+      // connect client to pipeline
+      connections.push_back(client.connect(
+        [&pipeline](const std::shared_ptr<std::vector<char>>& packet){ pipeline.slot(packet); }
+      ));
+    }
+
+    // connect the pipeline to the publisher
+    connections.push_back(pipeline.connect(
+        [&publisher](const boost::shared_ptr<pcl::PointCloud<quanergy::PointXYZIR>>& pc){ publisher.slot(pc); }
+    ));
+
+    // create publisher thread
+    publisher_threads.emplace_back(
+      [&publisher, &client_mutex, &client, &publishers_count, &publisher_cv]
+      {
+        std::unique_lock<std::mutex> lock(client_mutex);
+        ++publishers_count;
+        lock.unlock();
+        publisher_cv.notify_one();
+
+        publisher.run();
+        lock.lock();
         client.stop();
       }
     );
   }
 
-  waitForPublisherStartup(sensor_pipelines);
+  // this makes sure the publishers have started; without it, sometimes the client starts first (due to OS scheduling)
+  // and then we get a bunch of warning messages related to data coming in without being consumed
+  {
+    std::unique_lock<std::mutex> lock(client_mutex);
+    publisher_cv.wait(lock, [&publishers_count, pipeline_count]{ return publishers_count == pipeline_count; });
+  }
 
   // start client
   try
@@ -169,235 +304,31 @@ void ClientNode::run()
               << std::endl;
   }
 
-  // Clean up ROS
+
+  // Clean up
   ros::shutdown();
   
-  for (auto &thread : pipeline_threads)
+  connections.clear();
+
+  for (auto &thread : publisher_threads)
   {
     thread.join();
   }
-  pipeline_threads.clear();
+
+  publisher_threads.clear();
+
+  return (0);
 }
 
-void ClientNode::loadSettings(int argc, char ** argv)
+void RosNodeSettings::load(const quanergy::pipeline::SettingsFileLoader& settings)
 {
-  // Is there a settings file specified?
-  std::string settings_file;
-  pcl::console::parse_argument (argc, argv, "--settings", settings_file);
-
-  if (!settings_file.empty())
+  auto r = settings.get_optional<std::string>("Settings.return");
+  if (r && *r == "all_separate_topics")
   {
-    quanergy::Settings settings;
-
-    settings.loadXML(settings_file);
-
-    settings_.min = settings.get("DistanceFilter.min", settings_.min);
-    settings_.max = settings.get("DistanceFilter.max", settings_.max);
-
-    /// ring filter settings only relevant for M8
-    for (int i = 0; i < quanergy::client::M8_NUM_LASERS; i++)
-    {
-      const std::string num = boost::lexical_cast<std::string>(i);
-
-      std::string range_param = std::string("RingFilter.Range").append(num);
-      settings_.ring_range[i] = settings.get(range_param, settings_.ring_range[i]);
-
-      std::string intensity_param = std::string("RingFilter.Intensity").append(num);
-      settings_.ring_intensity[i] = settings.get(intensity_param, settings_.ring_intensity[i]);
-    }
-
-    settings_.amplitude = settings.get("EncoderCorrection.amplitude", settings_.amplitude);
-    settings_.phase = settings.get("EncoderCorrection.phase", settings_.phase);
-
-    settings_.host = settings.get("ClientRos.host", settings_.host);
-
-    settings_.topic = settings.get("ClientRos.topic", settings_.topic);
-    settings_.frame = settings.get("ClientRos.frame", settings_.frame);
-
-    settings_.useRosTime = settings.get("ClientRos.useRosTime", settings_.useRosTime);
-
-    std::string r = stringFromReturn(settings_.return_selection);
-    r = settings.get("ClientRos.return", r);
-    settings_.return_selection = returnFromString(r);
-
-    settings_.minCloudSize = settings.get("ClientRos.minCloudSize", settings_.minCloudSize);
-    settings_.maxCloudSize = settings.get("ClientRos.maxCloudSize", settings_.maxCloudSize);
-  }
-}
-
-void ClientNode::parseArgs(int argc, char ** argv)
-{
-  pcl::console::parse_argument (argc, argv, "--min", settings_.min);
-  pcl::console::parse_argument (argc, argv, "--max", settings_.max);
-
-  pcl::console::parse_argument (argc, argv, "--host", settings_.host);
-
-  pcl::console::parse_argument(argc, argv, "--encoder-amplitude-correction",
-                               settings_.amplitude);
-  pcl::console::parse_argument(argc, argv, "--encoder-phase-correction",
-                               settings_.phase);
-
-  pcl::console::parse_argument (argc, argv, "--topic", settings_.topic);
-  pcl::console::parse_argument (argc, argv, "--frame", settings_.frame);
-
-  pcl::console::parse_argument (argc, argv, "--useRosTime", settings_.useRosTime);
-
-  std::string r = stringFromReturn(settings_.return_selection);
-  pcl::console::parse_argument (argc, argv, "--return", r);
-  settings_.return_selection = returnFromString(r);
-
-  pcl::console::parse_argument (argc, argv, "--min-cloud", settings_.minCloudSize);
-  pcl::console::parse_argument (argc, argv, "--max-cloud", settings_.maxCloudSize);
-}
-
-void ClientNode::waitForPublisherStartup(
-  const std::vector<ClientNode::SensorPipelineModules::Ptr>& pipelines
-)
-{
-  if (pipelines.empty())
-  {
-    return;
+    separate_return_topics = true;
   }
 
-  bool waiting = true;
-  while (waiting)
-  {
-    bool ready = true;
-    for (const SensorPipelineModules::Ptr& pipeline : pipelines)
-    {
-      if (!pipeline->publisher.ready())
-      {
-        ready = false;
-        break;
-      }
-    }
+  topic = settings.get("Settings.RosNode.topic", topic);
 
-    if (!ready)
-    {
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    else
-    {
-      waiting = false;
-    }
-  }
+  use_ros_time = settings.get("Settings.RosNode.useRosTime", use_ros_time);
 }
-
-// SensorPipelineModules 
-
-ClientNode::SensorPipelineModules::SensorPipelineModules(
-  const ClientNode::Settings &settings,
-  int return_selection,
-  ClientNode::ClientType &client,
-  bool add_return_number_to_topic /* = false */) 
-  : publisher(settings.useRosTime)
-{
-  ros_topic_name_ = settings.topic;
-  if (add_return_number_to_topic && return_selection >= 0)
-  {
-    ros_topic_name_ += std::to_string(return_selection);
-  }
-
-  encoder_corrector.setParams(settings.amplitude, settings.phase);
-
-  // Setup modules
-
-  // Parsers
-  auto &parser00 = parser.get<PARSER_00_INDEX>();
-  auto &parser01 = parser.get<PARSER_01_INDEX>();
-  auto &parser04 = parser.get<PARSER_04_INDEX>();
-
-  // Parser 00
-  parser00.setFrameId(settings.frame);
-  parser00.setReturnSelection(return_selection);
-  parser00.setCloudSizeLimits(
-    settings.minCloudSize,
-    settings.maxCloudSize
-  );
-
-  // Parser 01
-  parser01.setFrameId(settings.frame);
-
-  // Parser 04
-  parser04.setFrameId(settings.frame);
-  parser04.setCloudSizeLimits(
-    settings.minCloudSize, 
-    settings.maxCloudSize
-  );
-
-  // Filters
-
-  // Distance Filter
-  distance_filter.setMaximumDistanceThreshold(settings.max);
-  distance_filter.setMinimumDistanceThreshold(settings.min);
-  for (int i = 0; i < quanergy::client::M8_NUM_LASERS; ++i)
-  {
-    ring_intensity_filter.setRingFilterMinimumRangeThreshold(
-      i, settings.ring_range[i]
-    );
-    ring_intensity_filter.setRingFilterMinimumIntensityThreshold(
-      i, settings.ring_intensity[i]
-    );
-  }
-
-  // Connect modules
-  // Client to Parser
-  connections.push_back(
-    client.connect(
-      [this](const ClientType::ResultType& pc){ parser.slot(pc); }
-    )
-  );
-  // Parser to Encoder Corrector
-  connections.push_back(
-    parser.connect(
-      [this](const ParserModuleType::ResultType& pc)
-      { encoder_corrector.slot(pc); }
-    )
-  );
-  // Encoder Corrector to Distance Filter
-  connections.push_back(
-    encoder_corrector.connect(
-      [this](const EncoderAngleCalibrationType::ResultType& pc)
-      { distance_filter.slot(pc); }
-    )
-  );
-  // Distance Filter to Ring Intensity Filter
-  connections.push_back(
-    distance_filter.connect(
-      [this](const DistanceFilter::ResultType& pc)
-      { ring_intensity_filter.slot(pc); }
-    )
-  );
-  // Ring Intensity Filter to Polar->Cartesian Converter
-  connections.push_back(
-    ring_intensity_filter.connect(
-      [this](const RingIntensityFilter::ResultType& pc)
-      { cartesian_converter.slot(pc); }
-    )
-  );
-  // Polar->Cartesian Converter to Publisher
-  connections.push_back(
-    cartesian_converter.connect(
-      [this](const ConverterType::ResultType& pc)
-      { publisher.slot(pc); }
-    )
-  );
-}
-
-ClientNode::SensorPipelineModules::~SensorPipelineModules()
-{
-  // Clean up
-  for (auto &connection : connections)
-  {
-    connection.disconnect();
-  }
-  connections.clear();
-}
-
-void ClientNode::SensorPipelineModules::run()
-{     
-  // Blocks until stopped 
-  publisher.run(ros_topic_name_);
-}
-
-

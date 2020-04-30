@@ -1,6 +1,6 @@
 /****************************************************************
  **                                                            **
- **  Copyright(C) 2015 Quanergy Systems. All Rights Reserved.  **
+ **  Copyright(C) 2020 Quanergy Systems. All Rights Reserved.  **
  **  Contact: http://www.quanergy.com                          **
  **                                                            **
  ****************************************************************/
@@ -17,23 +17,21 @@
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 
+/** \brief SimplePublisher publishes point clouds of type PointT */
 template <typename PointT>
 class SimplePublisher
 {
 public:
+  using Cloud = pcl::PointCloud<PointT>;
+  using CloudConstPtr = typename Cloud::ConstPtr;
 
-  typedef pcl::PointCloud<PointT> Cloud;
-  typedef typename Cloud::ConstPtr CloudConstPtr;
-
-  SimplePublisher(
-    const std::string& topic = "unnamed", 
-    bool useRosTime = false)
-    : topic_(topic) , useRosTime_(useRosTime)
+  SimplePublisher(ros::NodeHandle& nh, std::string topic, bool use_ros_time = false)
+    : use_ros_time_(use_ros_time)
   {
-  }
-
-  SimplePublisher(bool useRosTime) : SimplePublisher("unnamed", useRosTime)
-  {
+    topic = nh.resolveName(topic);
+    // Don't advertise too many packets. 
+    // If you do, you'll create a memory leak, as these things are *huge*.
+    publisher_ = nh.advertise<pcl::PointCloud<PointT>>(topic, 10);
   }
 
   void slot(const CloudConstPtr& cloud)
@@ -42,40 +40,23 @@ public:
 
     sensor_msgs::PointCloud2 ros_cloud;
     pcl::toROSMsg(*cloud, ros_cloud);
-    if (useRosTime_)
+    if (use_ros_time_)
+    {
       ros_cloud.header.stamp = ros::Time::now();
+    }
 
-    if (cloud_publisher_mutex_.try_lock())
+    // don't block if publisher isn't available
+    std::unique_lock<std::timed_mutex> lock(cloud_publisher_mutex_, std::chrono::milliseconds(10));
+    if (lock)
     {
       publisher_.publish(ros_cloud);
-      cloud_publisher_mutex_.unlock ();
     }
   }
 
-  void run(const std::string& topic_name)
+  /** \brief run the publisher; blocks until done */
+  void run(double frequency = 50.)
   {
-    run(50., topic_name);
-  }
-  /** \brief run the application */
-  void run(double frequency = 50., const std::string& topic_name = "")
-  {
-    ros::NodeHandle n;
-    std::string topic;
-    if (topic_name.empty())
-    {
-      topic = topic_;
-    }
-    else
-    {
-      topic = topic_name;
-    }
-    topic = n.resolveName(topic);
-    // Don't advertise too many packets. 
-    // If you do, you'll create a memory leak, as these things are *huge*.
-    publisher_ = n.advertise<pcl::PointCloud<PointT> >(topic, 10);
-
     ros::Rate r(frequency);
-    ready_ = true;
     while (ros::ok())
     {
       ros::spinOnce();
@@ -88,16 +69,9 @@ public:
     ros::shutdown();
   }
 
-  bool ready()
-  {
-    return ready_;
-  }
-
 private:
-  std::mutex cloud_publisher_mutex_;
-  std::string topic_;
-  bool useRosTime_;
-  bool ready_ = false;
+  std::timed_mutex cloud_publisher_mutex_;
+  bool use_ros_time_;
   ros::Publisher publisher_;
 };
 
