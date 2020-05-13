@@ -5,6 +5,7 @@ A roslaunch file is provided that uses the client.xml settings file that is in t
 
 rosrun can also be used to run client_node directly with all options controllable at the command line. 
 
+In either case, RVIZ can be used to view the point clouds.
 ## Build Instructions
 [Ubuntu 18.04 LTS](readme/ubuntu1804.md)
 
