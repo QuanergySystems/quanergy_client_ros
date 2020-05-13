@@ -1,9 +1,11 @@
 # Quanergy Sensor ROS SDK
-ROS driver using quanergy_client to produce ROS point cloud messages from Quanergy sensors
+ROS driver wrapping the QuanergyClient library to produce ROS point cloud messages from Quanergy sensors. 
+
+A roslaunch file is provided that uses the client.xml settings file that is in the settings folder. It provides host, ns, and topic arguments for avoiding collisions with multiple sensors.
+
+rosrun can also be used to run client_node directly with all options controllable at the command line. 
 
 ## Build Instructions
-[Ubuntu 14.04 LTS](readme/ubuntu1404.md)
+[Ubuntu 18.04 LTS](readme/ubuntu1804.md)
 
 [Ubuntu 16.04 LTS](readme/ubuntu1604.md)
-
-[nVidia Drive PX B00](readme/NVidiaDrivePX.md)

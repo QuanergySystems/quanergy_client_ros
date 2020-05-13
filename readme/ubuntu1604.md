@@ -2,8 +2,8 @@
 
 ## Install QuanergyClient (SDK)
 
-Build quanergy_client (SDK) per readme/ubuntu1604.md
-Install quanergy_client (SDK)
+If you haven't already, build QuanergyClient (SDK) per the provided instructions (readme/ubuntu1604.md)
+Install QuanergyClient
 
 ```
 cd ~/QuanergySystems/quanergy_client/build
@@ -28,20 +28,26 @@ cd ~/QuanergySystems/catkin_ws/src
 catkin_init_workspace
 git clone https://github.com/QuanergySystems/quanergy_client_ros.git
 ```
-Build quanergy_client_ros code
+Build QuanergyClientRos
 
 ```
 cd ~/QuanergySystems/catkin_ws
 catkin_make
 ```
 ## Testing Build
-To test, configure environment and launch node
 
 ```
 source /opt/ros/kinetic/setup.bash
 source ~/QuanergySystems/catkin_ws/devel/setup.bash
 roslaunch quanergy_client_ros client.launch host:=<hostname_or_ip>
 ```
+In a separate terminal, the following commands will show the output rate you are getting from your sensor.
+```
+source /opt/ros/kinetic/setup.bash
+rostopic hz /quanergy/points
+```
+
+
 ## Optional Configuration
 To add ROS environment configuration automatically to every future bash session
 ```
