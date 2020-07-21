@@ -78,10 +78,10 @@ int main(int argc, char** argv)
       "Frame name inserted in the point cloud.")
     ("return,r", po::value<std::string>(&return_string)->
       default_value(pipeline_settings.stringFromReturn(pipeline_settings.return_selection)),
-      "Return selection for multiple return M-series sensors. "
-      "Options are 0, 1, 2, all, or all_separate_topics. "
-      "If 'all' is chosen, then all 3 returns will be in an unorganized point cloud. "
-      "If 'all_separate_topics' is chosen, then there will be one topic per return.")
+      "Return selection (M-series only) - "
+      "Options are 0, 1, 2, all, or all_separate_topics. For 3 return packets, 'all' creates an unorganized point cloud "
+      "and 'all_separate_topics' creates 3 separate organized point clouds on their own topics. "
+      "For single return, explicitly setting a value produces an error if the selection doesn't match the packet.")
     ("calibrate", po::bool_switch(&pipeline_settings.calibrate),
       "Flag indicating encoder calibration should be performed and applied to outgoing points; M-series only.")
     ("frame-rate", po::value<double>(&pipeline_settings.frame_rate)->
@@ -146,6 +146,7 @@ int main(int argc, char** argv)
     // handle return selection
     if (!return_string.empty())
     {
+      pipeline_settings.return_selection_set = true;
       if (return_string == "all_separate_topics")
       {
         ros_node_settings.separate_return_topics = true;

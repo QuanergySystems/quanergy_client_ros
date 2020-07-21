@@ -14,9 +14,11 @@
   <frame>quanergy</frame>
 
   <!-- return selection
-       only applies to DataPacket00 (M-series)
+       only applies to M-series
+       For 3 returns, 'all' creates an unorganized point cloud
+       For single return, explicitly setting a value produces an error if the selection doesn't match the packet
        options: 0, 1, 2, all, or all_separate_topics -->
-  <return>0</return>
+  <return></return>
 
   <!-- encoder correction parameters; M-series only -->
   <EncoderCorrection>
