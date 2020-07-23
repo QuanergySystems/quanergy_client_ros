@@ -76,8 +76,7 @@ int main(int argc, char** argv)
     ("frame,f", po::value<std::string>(&pipeline_settings.frame)->
       default_value(pipeline_settings.frame),
       "Frame name inserted in the point cloud.")
-    ("return,r", po::value<std::string>(&return_string)->
-      default_value(pipeline_settings.stringFromReturn(pipeline_settings.return_selection)),
+    ("return,r", po::value<std::string>(&return_string),
       "Return selection (M-series only) - "
       "Options are 0, 1, 2, all, or all_separate_topics. For 3 return packets, 'all' creates an unorganized point cloud "
       "and 'all_separate_topics' creates 3 separate organized point clouds on their own topics. "
