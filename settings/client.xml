@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Settings>
-  <ClientRos>
+  <RosNode>
     <topic>points</topic>
 
     <useRosTime>true</useRosTime>
-  </ClientRos>
+  </RosNode>
 
   <!-- sensor host name or IP can be provided here 
        though it is typically done on command line. -->
