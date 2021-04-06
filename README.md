@@ -7,6 +7,6 @@ rosrun can also be used to run client_node directly with all options controllabl
 
 In either case, RVIZ can be used to view the point clouds.
 ## Build Instructions
-[Ubuntu 18.04 LTS](readme/ubuntu1804.md)
+[Ubuntu 20.04 LTS](readme/ubuntu2004.md)
 
-[Ubuntu 16.04 LTS](readme/ubuntu1604.md)
+[Ubuntu 18.04 LTS](readme/ubuntu1804.md)
