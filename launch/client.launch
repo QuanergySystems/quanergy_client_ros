@@ -3,14 +3,15 @@
   <arg name="host" />
   <arg name="ns" default="quanergy" />
   <arg name="topic" default="points" />
+  <arg name="frame" default="quanergy" />
 
   <!-- driver -->
   <group ns="$(arg ns)">
     <node name="client_node" 
           pkg="quanergy_client_ros" 
           type="client_node" 
-          args="--host $(arg host) --settings $(find quanergy_client_ros)/settings/client.xml --frame $(arg ns) --topic $(arg topic)"
-          required="true" 
+          args="--host $(arg host) --settings $(find quanergy_client_ros)/settings/client.xml --frame $(arg frame) --topic $(arg topic)"
+          required="true"
           output="screen"/>
   </group>
 </launch>
