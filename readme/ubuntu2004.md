@@ -1,14 +1,5 @@
 # Ubuntu 20.04 Build of QuanergyClientRos
 
-## Install QuanergyClient (SDK)
-
-If you haven't already, build QuanergyClient (SDK) per the provided instructions (readme/ubuntu1804.md - instructions are identical for 20.04 and 18.04)
-Install QuanergyClient
-
-```
-cd ~/QuanergySystems/quanergy_client/build
-sudo make install
-```
 ## Install ROS Noetic RVIZ and configure environment. [official documentation](http://wiki.ros.org/noetic/Installation/Ubuntu)
 
 ```
@@ -19,11 +10,12 @@ sudo apt install ros-noetic-rviz ros-noetic-pcl-ros ros-noetic-rosbash
 source /opt/ros/noetic/setup.bash
 ```
 ## Build Instructions
-Clone the ROS SDK repository
+Clone the SDK and the ROS repository
 
 ```
 mkdir -p ~/QuanergySystems/catkin_ws/src
 cd ~/QuanergySystems/catkin_ws/src
+git clone https://github.com/QuanergySystems/quanergy_client.git
 git clone https://github.com/QuanergySystems/quanergy_client_ros.git
 ```
 Build QuanergyClientRos
