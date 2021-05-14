@@ -3,7 +3,7 @@
   <arg name="host" />
   <arg name="ns" default="quanergy" />
   <arg name="topic" default="points" />
-  <arg name="frame" default="quanergy" />
+  <arg name="frame" default="$(arg ns)" />
 
   <!-- driver -->
   <group ns="$(arg ns)">
