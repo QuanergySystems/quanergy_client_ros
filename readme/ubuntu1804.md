@@ -1,14 +1,5 @@
 # Ubuntu 18.04 Build of QuanergyClientRos
 
-## Install QuanergyClient (SDK)
-
-If you haven't already, build QuanergyClient (SDK) per the provided instructions (readme/ubuntu1804.md)
-Install QuanergyClient
-
-```
-cd ~/QuanergySystems/quanergy_client/build
-sudo make install
-```
 ## Install ROS Melodic RVIZ and configure environment. [official documentation](http://wiki.ros.org/melodic/Installation/Ubuntu)
 
 ```
@@ -19,11 +10,12 @@ sudo apt install ros-melodic-rviz ros-melodic-pcl-ros ros-melodic-rosbash
 source /opt/ros/melodic/setup.bash
 ```
 ## Build Instructions
-Clone the ROS SDK repository
+Clone the SDK and the ROS repository
 
 ```
 mkdir -p ~/QuanergySystems/catkin_ws/src
 cd ~/QuanergySystems/catkin_ws/src
+git clone https://github.com/QuanergySystems/quanergy_client.git
 git clone https://github.com/QuanergySystems/quanergy_client_ros.git
 ```
 Build QuanergyClientRos
