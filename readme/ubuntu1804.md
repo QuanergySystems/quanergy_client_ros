@@ -22,7 +22,7 @@ Build QuanergyClientRos
 
 ```
 cd ~/QuanergySystems/catkin_ws
-catkin_make
+catkin_make_isolated
 ```
 ## Testing Build
 
