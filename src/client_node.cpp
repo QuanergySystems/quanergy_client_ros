@@ -10,8 +10,8 @@
 
 #include <quanergy/client/version.h>
 
-#if (QUANERGY_CLIENT_VERSION/100000 != 4)
-  #error Incompatible Quanergy Client Version; looking for v4.x.x
+#if (QUANERGY_CLIENT_VERSION/100000 != 5)
+  #error Incompatible Quanergy Client Version; looking for v5.x.x
 #endif
 
 // console parser
