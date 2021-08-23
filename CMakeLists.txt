@@ -18,7 +18,7 @@ find_package(PCL REQUIRED COMPONENTS common io)
 
 # finding FLANN doesn't work on 18.04 but is required on 20.04
 # we do the find but without required
-find_package(FLANN)
+find_package(FLANN QUIET)
 
 # Workaround required due to a bug in VTK6 for Ubuntu 16.04
 # See https://bugs.launchpad.net/ubuntu/+source/vtk6/+bug/1573234
