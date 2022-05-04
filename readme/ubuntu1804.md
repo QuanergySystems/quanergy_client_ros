@@ -28,7 +28,7 @@ catkin_make_isolated
 
 ```
 source /opt/ros/melodic/setup.bash
-source ~/QuanergySystems/catkin_ws/devel/setup.bash
+source ~/QuanergySystems/catkin_ws/devel_isolated/setup.bash
 roslaunch quanergy_client_ros client.launch host:=<hostname_or_ip>
 ```
 In a separate terminal, the following commands will show the output rate you are getting from your sensor.
@@ -42,5 +42,5 @@ rostopic hz /quanergy/points
 To add ROS environment configuration automatically to every future bash session
 ```
 echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
-echo "source ~/QuanergySystems/catkin_ws/devel/setup.bash" >> ~/.bashrc
+echo "source ~/QuanergySystems/catkin_ws/devel_isolated/setup.bash" >> ~/.bashrc
 ```
