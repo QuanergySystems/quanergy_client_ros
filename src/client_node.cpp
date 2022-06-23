@@ -45,8 +45,13 @@ struct RosNodeSettings
 
 int main(int argc, char** argv)
 {
+#ifdef ROS2_FOUND
+  rclcpp::init(argc, argv);
+  auto node = rclcpp::Node::make_shared("quanergy_client_ros");
+#else
   ros::init(argc, argv, "quanergy_client_ros");
-  ros::NodeHandle nh;
+  ros::NodeHandle node;
+#endif
 
   namespace po = boost::program_options;
 
@@ -236,7 +241,7 @@ int main(int argc, char** argv)
     auto& pipeline = pipelines.back();
 
     // create publisher and get reference to it
-    publishers.emplace_back(nh, topic, ros_node_settings.use_ros_time);
+    publishers.emplace_back(node, topic, ros_node_settings.use_ros_time);
     auto& publisher = publishers.back();
 
     if (ros_node_settings.separate_return_topics)
@@ -266,7 +271,7 @@ int main(int argc, char** argv)
 
     // connect the pipeline to the publisher
     connections.push_back(pipeline.connect(
-        [&publisher](const boost::shared_ptr<pcl::PointCloud<quanergy::PointXYZIR>>& pc){ publisher.slot(pc); }
+        [&publisher](const quanergy::PointCloudXYZIRPtr& pc){ publisher.slot(pc); }
     ));
 
     // create publisher thread
@@ -306,8 +311,12 @@ int main(int argc, char** argv)
 
 
   // Clean up
+#ifdef ROS2_FOUND
+  rclcpp::shutdown();
+#else
   ros::shutdown();
-  
+#endif
+
   connections.clear();
 
   for (auto &thread : publisher_threads)
