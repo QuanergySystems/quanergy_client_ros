@@ -108,8 +108,8 @@ if(ament_cmake_FOUND)
   install(TARGETS client_node DESTINATION lib/${PROJECT_NAME})
 
   # Mark other files for installation (e.g. launch and bag files, etc.)
-  install(DIRECTORY launch/
-    DESTINATION launch
+  install(FILES launch/client.launch.xml
+    DESTINATION share/quanergy_client_ros
   )
 
   install(DIRECTORY settings/
@@ -138,7 +138,7 @@ elseif(catkin_FOUND)
   )
 
   # Mark other files for installation (e.g. launch and bag files, etc.)
-  install(DIRECTORY launch/
+  install(FILES launch/client.launch
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
   )
 
