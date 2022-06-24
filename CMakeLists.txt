@@ -12,12 +12,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 ## find ament_cmake for ROS2
 find_package(ament_cmake QUIET)
 
-## Find catkin macros and libraries for ROS1
-find_package(catkin QUIET COMPONENTS
-  roscpp
-  sensor_msgs
-  pcl_ros
-)
+if(NOT ament_cmake_FOUND)
+  ## Find catkin macros and libraries for ROS1
+  find_package(catkin QUIET COMPONENTS
+    roscpp
+    sensor_msgs
+    pcl_ros
+  )
+endif()
 
 ## System dependencies are found with CMake's conventions
 find_package(QuanergyClient REQUIRED)
@@ -46,7 +48,7 @@ elseif(catkin_FOUND)
     CATKIN_DEPENDS roscpp sensor_msgs pcl_ros
   )
 else()
-  error("no build system found")
+  message(FATAL_ERROR "no build system found")
 endif()
 
 ###########

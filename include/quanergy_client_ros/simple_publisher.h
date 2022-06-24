@@ -19,6 +19,7 @@
 #else
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <pcl_ros/point_cloud.h>
 #endif
 
 /** \brief SimplePublisher publishes point clouds of type PointT */
