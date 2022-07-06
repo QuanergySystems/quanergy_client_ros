@@ -47,6 +47,25 @@ int main(int argc, char** argv)
 {
 #ifdef ROS2_FOUND
   rclcpp::init(argc, argv);
+
+  // ros2 doesn't remove ros arguments like ROS1 so we have to do it ourselves
+  rcl_arguments_t *args_output = new rcl_arguments_t();
+  rcl_ret_t ret = rcl_parse_arguments(argc, argv, rcutils_get_default_allocator(), args_output);
+  if (RCL_RET_OK != ret)
+  {
+    std::cerr << "ROS2 parse error (aborting): " << ret << std::endl;
+    return ret;
+  }
+
+  int nonros_argc = 0;
+  const char **nonros_argv = NULL;
+  ret = rcl_remove_ros_arguments(argv, args_output, rcutils_get_default_allocator(), &nonros_argc, &nonros_argv);
+  if (RCL_RET_OK != ret)
+  {
+    std::cout << "ROS2 remove args error (aborting): " << ret << std::endl;
+    return ret;
+  }
+
   auto node = rclcpp::Node::make_shared("quanergy_client_ros");
 #else
   ros::init(argc, argv, "quanergy_client_ros");
@@ -110,7 +129,12 @@ int main(int argc, char** argv)
   {
     // load the command line options into the variables map
     po::variables_map vm;
+
+#ifdef ROS2_FOUND
+    po::store(po::command_line_parser(nonros_argc, nonros_argv).options(description).positional(p).run(), vm);
+#else
     po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
+#endif
 
     if (vm.count("help"))
     {
