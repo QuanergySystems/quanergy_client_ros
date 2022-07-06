@@ -49,8 +49,8 @@ int main(int argc, char** argv)
   rclcpp::init(argc, argv);
 
   // ros2 doesn't remove ros arguments like ROS1 so we have to do it ourselves
-  rcl_arguments_t *args_output = new rcl_arguments_t();
-  rcl_ret_t ret = rcl_parse_arguments(argc, argv, rcutils_get_default_allocator(), args_output);
+  auto args_output = rcl_get_zero_initialized_arguments();
+  auto ret = rcl_parse_arguments(argc, argv, rcutils_get_default_allocator(), &args_output);
   if (RCL_RET_OK != ret)
   {
     std::cerr << "ROS2 parse error (aborting): " << ret << std::endl;
@@ -59,10 +59,18 @@ int main(int argc, char** argv)
 
   int nonros_argc = 0;
   const char **nonros_argv = NULL;
-  ret = rcl_remove_ros_arguments(argv, args_output, rcutils_get_default_allocator(), &nonros_argc, &nonros_argv);
+  ret = rcl_remove_ros_arguments(argv, &args_output, rcutils_get_default_allocator(), &nonros_argc, &nonros_argv);
   if (RCL_RET_OK != ret)
   {
     std::cout << "ROS2 remove args error (aborting): " << ret << std::endl;
+    return ret;
+  }
+
+  // deallocate args
+  ret = rcl_arguments_fini(&args_output);
+  if (RCL_RET_OK != ret)
+  {
+    std::cout << "ROS2 deallocate args error (aborting): " << ret << std::endl;
     return ret;
   }
 
@@ -132,11 +140,12 @@ int main(int argc, char** argv)
 
 #ifdef ROS2_FOUND
     po::store(po::command_line_parser(nonros_argc, nonros_argv).options(description).positional(p).run(), vm);
+    delete[] nonros_argv;
 #else
     po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
 #endif
 
-    if (vm.count("help"))
+        if (vm.count("help"))
     {
       std::cout << description << std::endl;
       return 0;
