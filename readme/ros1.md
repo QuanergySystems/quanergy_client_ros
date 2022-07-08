@@ -2,8 +2,8 @@
 
 ## Install the appropriate version of ROS1 for your operating system
 The commands below should be sufficient for most installs but reference the official documentation if there are issues.
-Ubuntu 20.04 official documentation: [ROS Noetic](http://wiki.ros.org/noetic/Installation/Ubuntu)
-Ubuntu 18.04 official documentation: [ROS Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
+- Ubuntu 20.04 official documentation: [ROS Noetic](http://wiki.ros.org/noetic/Installation/Ubuntu)
+- Ubuntu 18.04 official documentation: [ROS Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
 
 ```
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'

@@ -2,8 +2,8 @@
 
 ## Install the appropriate version of ROS2 for your operating system
 The commands below should be sufficient for most installs but reference the official documentation if there are issues.
-Ubuntu 22.04 official documentation: [ROS2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
-Ubuntu 20.04 official documentation: [ROS2 Foxy](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html)
+- Ubuntu 22.04 official documentation: [ROS2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
+- Ubuntu 20.04 official documentation: [ROS2 Foxy](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html)
 
 ```
 sudo apt update && sudo apt install curl gnupg2 lsb-release
