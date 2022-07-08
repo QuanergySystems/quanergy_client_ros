@@ -6,12 +6,11 @@
   <arg name="frame" default="$(arg ns)" />
 
   <!-- driver -->
-  <group ns="$(arg ns)">
-    <node name="client_node" 
-          pkg="quanergy_client_ros" 
-          type="client_node" 
-          args="--host $(arg host) --settings $(find quanergy_client_ros)/settings/client.xml --frame $(arg frame) --topic $(arg topic)"
-          required="true"
-          output="screen"/>
-  </group>
+  <node name="client_node" 
+        pkg="quanergy_client_ros"
+        type="client_node" 
+        ns="$(arg ns)"
+        args="--host $(arg host) --settings $(find quanergy_client_ros)/settings/client.xml --frame $(arg frame) --topic $(arg topic)"
+        required="true"
+        output="screen"/>
 </launch>
