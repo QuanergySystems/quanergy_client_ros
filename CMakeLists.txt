@@ -108,7 +108,7 @@ if(ament_cmake_FOUND)
   install(TARGETS client_node DESTINATION lib/${PROJECT_NAME})
 
   # Mark other files for installation (e.g. launch and bag files, etc.)
-  install(FILES launch/client.launch.xml
+  install(FILES launch/client.launch.py
     DESTINATION share/quanergy_client_ros
   )
 

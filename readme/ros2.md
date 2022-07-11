@@ -47,7 +47,7 @@ In the instructions below, substitute the appropriate distrobution for `<distro>
 ```
 source /opt/ros/<distro>/setup.bash
 source ~/QuanergySystems/sdk_ws/install/setup.bash
-ros2 launch quanergy_client_ros client.launch.xml host:=<hostname_or_ip>
+ros2 launch quanergy_client_ros client.launch.py host:=<hostname_or_ip>
 ```
 In a separate terminal, the following commands will show the output rate you are getting from your sensor.
 ```
