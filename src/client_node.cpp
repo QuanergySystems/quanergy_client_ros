@@ -93,6 +93,11 @@ int main(int argc, char** argv)
   // port
   std::string port = "4141";
 
+  // This is where the options are defined and presented to the user. The default values all come from pipeline_settings.
+  // This is required to make the precedence work properly (default/settings file/command line). Later on, we remove
+  // default values from the command line so they don't overwrite settings. Therefore, if for some reason, it is 
+  // necessary to use different defaults for this application, the appropriate value should be set in pipeline_settings
+  // before add_options and the default value should still be from pipeline_settings. 
   description.add_options()
     ("help,h", "Display this help message.")
     ("settings-file,s", po::value<std::string>(),
@@ -169,6 +174,20 @@ int main(int argc, char** argv)
       pipeline_settings.load(file_loader);
     }
 
+    // Remove the defaulted values so they don't overwrite settings. This step requires care in defining defaults
+    // See the note before options are defined above.
+    for (auto it = vm.begin(); it != vm.end();)
+    {
+      if (it->second.defaulted())
+      {
+        it = vm.erase(it);
+      }
+      else
+      {
+        ++it;
+      }
+    }
+
     // notify; this stores command line options in associated variables
     po::notify(vm);
 
@@ -223,7 +242,6 @@ int main(int argc, char** argv)
     std::cout << "Error: " << e.what() << std::endl;
     return -2;
   }
-
 
   // create client to get raw packets from the sensor
   quanergy::client::SensorClient client(pipeline_settings.host, port, 100);
