@@ -4,7 +4,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions import PathJoinSubstitution
-from launch.substitutions import FindPackagePrefix
+from launch_ros.substitutions import FindPackagePrefix
 
 
 def generate_launch_description():
